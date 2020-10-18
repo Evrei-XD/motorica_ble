@@ -55,6 +55,7 @@ class StartActivity : AppIntro(), BaseView {
     val intent = intent
     mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME)
     mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS)
+    preferenceManager.putBoolean(PreferenceKeys.NEWBE.first, false)//для выключения интро при последующем запуске
 
     if (!preferenceManager.getBoolean(PreferenceKeys.NEWBE.first, PreferenceKeys.NEWBE.second)) {
       val intent = Intent(this, MainActivity::class.java)

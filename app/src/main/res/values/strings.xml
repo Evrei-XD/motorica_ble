@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">инсулин трекер</string>
+    <string name="app_name">Stradivary control</string>
     <string name="start">старт</string>
     <string name="title_alert">уведомления</string>
     <string name="title_add_capacity">ёмкость добавляемых чашек(ml)</string>

@@ -48,6 +48,7 @@ import com.skydoves.waterdays.utils.NavigationUtils
 import com.skydoves.waterdays.viewTypes.MainActivityView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.layout_chart.*
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -220,7 +221,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
         .compose(bindToLifecycle<Boolean>())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe { flag ->
-          if (!flag) showBadge(0)
+//          if (!flag) showBadge(0)
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
@@ -229,19 +230,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
     mainactivity_viewpager.offscreenPageLimit = 5
-    NavigationUtils.setComponents(baseContext, mainactivity_viewpager, mainactivity_navi)
   }
 
-  /**
-   * show badge with delay
-   * @param position
-   */
-  private fun showBadge(position: Int) {
-    mainactivity_navi.postDelayed({
-      val model = mainactivity_navi.models[position]
-      mainactivity_navi.postDelayed({ model.showBadge() }, 100)
-    }, 200)
-  }
 
   private fun getNFCData(intent: Intent) {
     if (NfcAdapter.ACTION_NDEF_DISCOVERED == getIntent().action) {
@@ -255,7 +245,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
         presenter.addRecord(String(payload))
         mSectionsPagerAdapter!!.notifyDataSetChanged()
-        showBadge(0)
       }
     }
   }
@@ -277,10 +266,10 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 //    nAdapter!!.enableForegroundDispatch(this, pIntent, filters, null)
 
     //BLE
-      registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
-      if (mBluetoothLeService != null) {
-        val result = mBluetoothLeService!!.connect(mDeviceAddress)
-      }
+    registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
+    if (mBluetoothLeService != null) {
+      val result = mBluetoothLeService!!.connect(mDeviceAddress)
+    }
   }
 
   override fun onPause() {
@@ -345,8 +334,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
       }
       mGattCharacteristics.add(charas)
       gattCharacteristicData.add(gattCharacteristicGroupData)
-//      System.err.println("displayGattServices mGattCharacteristics size = " + mGattCharacteristics.size + "indices = " + mGattCharacteristics.indices)
-//      DelaiGriaz()
     }
     val gattServiceAdapter = SimpleExpandableListAdapter(
             this,
@@ -358,29 +345,24 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     enableInterface(true)
   }
   private fun enableInterface(enabled: Boolean) {
+    close_btn.isEnabled = enabled
+    open_btn.isEnabled = enabled
 //    mOpenBtn.setEnabled(enabled)
 //    mCloseBtn.setEnabled(enabled)
 //    mFirstByteSeekBar.setEnabled(enabled)
 //    mSecondByteSeekBar.setEnabled(enabled)
   }
 
-  fun DelaiGriaz (){
-    System.err.println("DelaiGriaz")
-    if (mGattCharacteristics != null) {
-      System.err.println("DelaiGriaz mGattCharacteristics size = " + mGattCharacteristics.size + "indices = " + mGattCharacteristics.indices)
-      for (i in mGattCharacteristics.indices) {
-        for (j in mGattCharacteristics[i].indices) {
-          System.err.println("DelaiGriaz podbor uuid = " + mGattCharacteristics[i][j].uuid.toString())
-          if (mGattCharacteristics[i][j].uuid.toString() == CLOSE_MOTOR_HDLE) {
-            System.err.println("DelaiGriaz v ife")
-            mCharacteristic = mGattCharacteristics[i][j]
-            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-              System.err.println("DelaiGriaz zapis'")
-              val massage = byteArrayOf(0x01, 0x00)
-              mCharacteristic?.value = massage
-//              mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-              mBluetoothLeService?.readCharacteristic(mCharacteristic)
-            }
+  fun DelaiGriaz (byteArray: ByteArray){
+    for (i in mGattCharacteristics.indices) {
+      for (j in mGattCharacteristics[i].indices) {
+        if (mGattCharacteristics[i][j].uuid.toString() == CLOSE_MOTOR_HDLE) {
+          mCharacteristic = mGattCharacteristics[i][j]
+          if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+            val massage = byteArray
+            mCharacteristic?.value = massage
+            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+//              mBluetoothLeService?.readCharacteristic(mCharacteristic)
           }
         }
       }

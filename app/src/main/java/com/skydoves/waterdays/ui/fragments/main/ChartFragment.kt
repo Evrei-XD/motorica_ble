@@ -16,11 +16,17 @@
 
 package com.skydoves.waterdays.ui.fragments.main
 
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothGattCharacteristic
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
+import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.widget.SeekBar
+import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -67,6 +73,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     return rootView
   }
 
+  @SuppressLint("ClickableViewAccessibility")
   override fun onActivityCreated(savedInstanceState: Bundle?) {
     super.onActivityCreated(savedInstanceState)
 
@@ -76,17 +83,27 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
     System.err.println("ChartFragment: дата getDateDay=" + DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat))
 
-    chart_ibtn_back.setOnClickListener { DateMoveButton(it) }
-    chart_ibtn_next.setOnClickListener { DateMoveButton(it) }
-    bolus_fab.setOnClickListener  { onBolusFab() }
-    basal_fab.setOnClickListener  { onBasalFab() }
-    diary_fab.setOnClickListener  { onDiaryFab() }
-    search_fab.setOnClickListener { onSearchFab() }
-    play_stop_fab.setOnClickListener { onPlayStopFab() }
+    close_btn.setOnTouchListener(OnTouchListener { v, event ->
+      if (event.action == MotionEvent.ACTION_DOWN) {
+        main?.DelaiGriaz(byteArrayOf(0x01, 0x00))
+      }
+      if (event.action == MotionEvent.ACTION_UP) {
+        main?.DelaiGriaz(byteArrayOf(0x00, 0x00))
+      }
+      false
+    })
+//    basal_fab.setOnClickListener  { onBasalFab() }
+//    diary_fab.setOnClickListener  { onDiaryFab() }
+//    search_fab.setOnClickListener { onSearchFab() }
+//    play_stop_fab.setOnClickListener { onPlayStopFab() }
   }
 
+//  private fun onClose(): Boolean {
+//    main?.DelaiGriaz()
+//  }
+
   private fun onBolusFab() {
-    main?.DelaiGriaz()
+    main?.DelaiGriaz(byteArrayOf(0x01, 0x00))
     Toast.makeText(context, getString(R.string.bolus), Toast.LENGTH_SHORT).show()
   }
   private fun onBasalFab() {
@@ -102,25 +119,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     Toast.makeText(context, getString(R.string.play_stop), Toast.LENGTH_SHORT).show()
   }
 
-  internal fun DateMoveButton(v: View) {
-    val DayNum = DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
-    when (v.id) {
-      R.id.chart_ibtn_back -> {
-        dateCount -= 7
-        initializeChart(6)
-      }
-
-      R.id.chart_ibtn_next -> if (dateCount == -DayNum)
-        Toast.makeText(context, "День ещё не наступил.", Toast.LENGTH_SHORT).show()
-      else {
-        dateCount += 7
-        if (dateCount == -DayNum)
-          initializeChart(DayNum)
-        else
-          initializeChart(6)
-      }
-    }
-  }
 
   private fun initializeChart(dayCount: Int) {
     var TotalAmount = 0f
@@ -145,9 +143,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       // add entry
       entries.add(Entry(daySum.toFloat(), i))
     }
-
-    val tv_date = rootView!!.findViewById(R.id.chart_tv_weekdate) as TextView
-    tv_date.text = DateUtils.getFarDay(dateCount) + " ~ " + DateUtils.getFarDay(dateCount + 6)
 
     val labels = ArrayList<String>()
     labels.add("1:00")
@@ -187,12 +182,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     chart_mainchart.setScaleEnabled(true)//и перетаскивание по ней же если поставить в обоих этих строчках true
     chart_mainchart.setScaleMinima(2f, 0f)//здесь можно увеличить начальный масштаб 2f = 2x
     chart_mainchart.setVisibleXRange(4f, 24f)//здесь можно настроить минимальный и максимальный диапазон увеличения
-//    chart_mainchart.setVisibleYRange(30f, leftAxis)
-//    chart_mainchart.moveViewToAnimated(dataset.getEntryCount() - 5f,0f, chart_mainchart.xAxis, 100L)
-//    chart_mainchart.moveViewToX(dataset.getEntryCount() - 5f)//здесь можно задать начальное смещение по оси Х. Вычисляется как количество отрезков от начала графика, на которое сдвигается график с лэйблами
     chart_mainchart.xAxis.labelRotationAngle = 45f
-//    chart_mainchart.axisLeft.setPosition(INSIDE_CHART)
-//    chart_mainchart.axisLeft.axisMinValue = 4f
     chart_mainchart.animateY(700)
 
     val mv = context?.let { MyMarkerView(it, R.layout.custom_marker_view) }
@@ -256,13 +246,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   override fun onValueSelected(e: Entry, dataSetIndex: Int, h: Highlight) {
     System.err.println("подпись: " + DateUtils.getIndexOfDayName(e.xIndex))
-//    val tv_sdTitle = rootView!!.findViewById(R.id.chart_tv03) as TextView
-//    val dName = DateUtils.getIndexOfDayName(e.xIndex)
-//    tv_sdTitle.text = dName
 
     System.err.println("подпись: " + e.`val` + " ml")
-//    val tv_selectedday = rootView!!.findViewById(R.id.chart_tv_selectedday) as TextView
-//    tv_selectedday.text = String.format("%.0f", e.`val`) + " ml"
   }
 
   override fun onNothingSelected() {
