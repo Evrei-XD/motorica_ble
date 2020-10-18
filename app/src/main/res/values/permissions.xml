@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ok">ok</string>
+    <string name="title_location_permission">Please, granted location permission</string>
+    <string name="text_location_permission">You must be granted location permission for correct scanning devices</string>
+    <string name="massage">input send massage</string>
+</resources>
