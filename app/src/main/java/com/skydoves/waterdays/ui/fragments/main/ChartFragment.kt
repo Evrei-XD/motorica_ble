@@ -178,7 +178,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
 //        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
-        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 290 * scale + 0.5f - (seekBar.progress * scale + 0.5f))
+        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
       }
@@ -263,8 +263,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
       data.notifyDataChanged()
       chart_mainchart.notifyDataSetChanged()
-      chart_mainchart.setVisibleXRangeMaximum(100f)
-      chart_mainchart.moveViewToX(set.entryCount - 100.toFloat()) //data.getEntryCount()
+      chart_mainchart.setVisibleXRangeMaximum(50f)
+      chart_mainchart.moveViewToX(set.entryCount - 50.toFloat()) //data.getEntryCount()
     }
   }
   private fun initializedSensorGraph() {
@@ -299,6 +299,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     y.textSize = 12f
     y.setDrawGridLines(true)
     y.setDrawAxisLine(false)
+    y.setStartAtZero(true)
     y.gridColor = Color.WHITE
     chart_mainchart.axisRight.axisLineColor = Color.TRANSPARENT
     chart_mainchart.axisRight.textColor = Color.TRANSPARENT
@@ -306,16 +307,16 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
-      var i = 0
+//      var i = 0
       while (graphThreadFlag) {
         main?.runOnUiThread(Runnable {
-          if (i == 0) {
+//          if (i == 0) {
             addEntry(0, 255)
-            i = 1
-          } else {
-            addEntry(100, 120)
-            i = 0
-          }
+//            i = 1
+//          } else {
+//            addEntry(100, 120)
+//            i = 0
+//          }
         })
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())

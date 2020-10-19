@@ -32,8 +32,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginStart="-80dp"
-                        android:layout_marginBottom="0dp"
+                        android:layout_marginStart="-90dp"
+                        android:layout_marginBottom="-40dp"
                         android:indeterminate="false"
                         android:max="255"
                         android:progress="80"
@@ -51,7 +51,8 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:layout_alignParentBottom="true"
-                        android:layout_marginEnd="-80dp"
+                        android:layout_marginBottom="-30dp"
+                        android:layout_marginEnd="-90dp"
                         android:indeterminate="false"
                         android:max="255"
                         android:progress="80"
@@ -64,7 +65,7 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_mainchart"
                 android:layout_width="match_parent"
-                android:layout_height="340dp"
+                android:layout_height="320dp"
                 android:foregroundGravity="center" />
 
             <ImageView
