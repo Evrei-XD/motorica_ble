@@ -278,15 +278,15 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       var i = 0
       while (graphThreadFlag) {
         if (plotData) {
-          addEntry(50, 200)
+//          addEntry(50, 200)
           plotData = false
         }
         main?.runOnUiThread(Runnable {
           if (i == 0) {
-            addEntry(10, 255)
+//            addEntry(10, 255)
             i = 0
           } else {
-            addEntry(100, 120)
+//            addEntry(100, 120)
             i = 0
           }
         })
