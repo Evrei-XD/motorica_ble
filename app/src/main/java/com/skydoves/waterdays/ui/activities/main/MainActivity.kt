@@ -353,10 +353,10 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 //    mSecondByteSeekBar.setEnabled(enabled)
   }
 
-  fun DelaiGriaz (byteArray: ByteArray){
+  fun DelaiGriaz (byteArray: ByteArray, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
-        if (mGattCharacteristics[i][j].uuid.toString() == CLOSE_MOTOR_HDLE) {
+        if (mGattCharacteristics[i][j].uuid.toString() == typeCommand) {
           mCharacteristic = mGattCharacteristics[i][j]
           if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
             val massage = byteArray

@@ -17,7 +17,6 @@
 package com.skydoves.waterdays.ui.fragments.main
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothGattCharacteristic
 import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -41,6 +40,7 @@ import com.github.mikephil.charting.listener.OnChartValueSelectedListener
 import com.github.mikephil.charting.utils.ViewPortHandler
 import com.skydoves.waterdays.R
 import com.skydoves.waterdays.WDApplication
+import com.skydoves.waterdays.ble.SampleGattAttributes.*
 import com.skydoves.waterdays.persistence.sqlite.SqliteManager
 import com.skydoves.waterdays.ui.activities.main.MainActivity
 import com.skydoves.waterdays.ui.customViews.MyMarkerView
@@ -79,44 +79,97 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     // set dateCount
     dateCount = -DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat)
-    System.err.println("ChartFragment: дата dateCount=" + dateCount)
     initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
-    System.err.println("ChartFragment: дата getDateDay=" + DateUtils.getDateDay(DateUtils.getFarDay(0), DateUtils.dateFormat))
+    val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
+    val startUpStepTv = rootView!!.findViewById(R.id.start_up_step_tv) as TextView
+    val startUpTimeTv = rootView!!.findViewById(R.id.start_up_time_tv) as TextView
+    val deadZoneTv = rootView!!.findViewById(R.id.dead_zone_tv) as TextView
+    val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
+    val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
+
 
     close_btn.setOnTouchListener(OnTouchListener { v, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.DelaiGriaz(byteArrayOf(0x01, 0x00))
+        main?.DelaiGriaz(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.DelaiGriaz(byteArrayOf(0x00, 0x00))
+        main?.DelaiGriaz(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE)
       }
       false
     })
-//    basal_fab.setOnClickListener  { onBasalFab() }
-//    diary_fab.setOnClickListener  { onDiaryFab() }
-//    search_fab.setOnClickListener { onSearchFab() }
-//    play_stop_fab.setOnClickListener { onPlayStopFab() }
-  }
+    open_btn.setOnTouchListener(OnTouchListener { v, event ->
+      if (event.action == MotionEvent.ACTION_DOWN) {
+        main?.DelaiGriaz(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE)
+      }
+      if (event.action == MotionEvent.ACTION_UP) {
+        main?.DelaiGriaz(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE)
+      }
+      false
+    })
+    shutdown_current_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        shutdownCurrentTv.text = seekBar.progress.toString()
+      }
 
-//  private fun onClose(): Boolean {
-//    main?.DelaiGriaz()
-//  }
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE)
+      }
+    })
+    start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        startUpStepTv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE)
+      }
+    })
+    start_up_time_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        startUpTimeTv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE)
+      }
+    })
+    dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        deadZoneTv.text = (seekBar.progress + 30).toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE)
+      }
+    })
+    sensitivity_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        sensitivityTv.text = (seekBar.progress + 1).toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+      }
+    })
+    brake_motor_sb.setOnClickListener(View.OnClickListener {
+      if (brake_motor_sb.isChecked) {
+        brakeMotorTv.text = 1.toString()
+        main?.DelaiGriaz(byteArrayOf(0x01), BRAKE_MOTOR_HDLE)
+      } else {
+        brakeMotorTv.text = 0.toString()
+        main?.DelaiGriaz(byteArrayOf(0x00), BRAKE_MOTOR_HDLE)
+      }
+    })
+  }
 
   private fun onBolusFab() {
-    main?.DelaiGriaz(byteArrayOf(0x01, 0x00))
+    main?.DelaiGriaz(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE)
     Toast.makeText(context, getString(R.string.bolus), Toast.LENGTH_SHORT).show()
-  }
-  private fun onBasalFab() {
-    Toast.makeText(context, getString(R.string.basal), Toast.LENGTH_SHORT).show()
-  }
-  private fun onDiaryFab() {
-    Toast.makeText(context, getString(R.string.diary), Toast.LENGTH_SHORT).show()
-  }
-  private fun onSearchFab() {
-    Toast.makeText(context, getString(R.string.search), Toast.LENGTH_SHORT).show()
-  }
-  private fun onPlayStopFab() {
-    Toast.makeText(context, getString(R.string.play_stop), Toast.LENGTH_SHORT).show()
   }
 
 
@@ -126,7 +179,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     var sumCount = 0f
     val entries = ArrayList<Entry>()
     for (i in 0..dayCount) {
-      val daySum = sqliteManager!!.getDayDrinkAmount(DateUtils.getFarDay(dateCount + i))
+      val daySum = sqliteManager.getDayDrinkAmount(DateUtils.getFarDay(dateCount + i))
 
       // get total sum
       TotalAmount += daySum.toFloat()
