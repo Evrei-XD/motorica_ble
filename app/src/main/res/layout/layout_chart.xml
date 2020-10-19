@@ -20,21 +20,8 @@
             <com.github.mikephil.charting.charts.LineChart
                 android:id="@+id/chart_mainchart"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="340dp"
                 android:foregroundGravity="center" />
-
-            <TextView
-                android:id="@+id/chart_tv_message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_centerVertical="true"
-                android:layout_gravity="center"
-                android:text="пусто"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:textColor="#ffffff"
-                android:textSize="22sp"
-                android:visibility="invisible" />
 
         </RelativeLayout>
 
@@ -124,7 +111,8 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentLeft="true"
                                 android:text="shutdown current"
                                 style="@style/Text"/>
                         </RelativeLayout>
@@ -179,7 +167,7 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentStart="true"
                                 android:text="start up step"
                                 style="@style/Text"/>
                         </RelativeLayout>
@@ -234,7 +222,7 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentStart="true"
                                 android:text="start up time"
                                 style="@style/Text"/>
                         </RelativeLayout>
@@ -289,7 +277,7 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentStart="true"
                                 android:text="dead zone"
                                 style="@style/Text"/>
                         </RelativeLayout>
@@ -344,7 +332,7 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentStart="true"
                                 android:text="sensitivity"
                                 style="@style/Text"/>
                         </RelativeLayout>
@@ -399,7 +387,7 @@
                                 android:layout_height="wrap_content"
                                 android:textStyle="bold"
                                 android:layout_centerVertical="true"
-                                android:layout_centerHorizontal="true"
+                                android:layout_alignParentStart="true"
                                 android:text="use brake motor"
                                 style="@style/Text"/>
                         </RelativeLayout>

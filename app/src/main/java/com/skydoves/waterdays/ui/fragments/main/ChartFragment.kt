@@ -32,11 +32,11 @@ import androidx.fragment.app.Fragment
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
-import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.github.mikephil.charting.utils.ViewPortHandler
 import com.skydoves.waterdays.R
 import com.skydoves.waterdays.WDApplication
@@ -46,7 +46,6 @@ import com.skydoves.waterdays.ui.activities.main.MainActivity
 import com.skydoves.waterdays.ui.customViews.MyMarkerView
 import com.skydoves.waterdays.utils.DateUtils
 import kotlinx.android.synthetic.main.layout_chart.*
-import java.util.*
 import javax.inject.Inject
 
 /**
@@ -172,45 +171,76 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     Toast.makeText(context, getString(R.string.bolus), Toast.LENGTH_SHORT).show()
   }
 
+  //////////////////////////////////////////////////////////////////////////////
+  /**                          работа с графиками                            **/
+  //////////////////////////////////////////////////////////////////////////////
+  private fun createSet(): LineDataSet? {
+    val set = LineDataSet(null, null)
+    set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+    set.lineWidth = 2f
+    set.color = Color.GREEN
+    set.cubicIntensity = 3f
+    set.setCircleColor(Color.GREEN)
+    set.fillAlpha = 65
+    set.fillColor = ColorTemplate.getHoloBlue()
+    set.highLightColor = Color.rgb(244, 117, 177)
+    set.valueTextColor = Color.WHITE
+    set.valueTextSize = 1f
+    return set
+  }
+  private fun createSet2(): LineDataSet? {
+    val set2 = LineDataSet(null, null)
+    set2.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
+    set2.lineWidth = 2f
+    set2.color = Color.BLUE
+    set2.cubicIntensity = 3f
+    set2.setCircleColor(Color.YELLOW)
+    set2.fillAlpha = 65
+    set2.fillColor = ColorTemplate.getHoloBlue()
+    set2.highLightColor = Color.rgb(244, 117, 177)
+    set2.valueTextColor = Color.WHITE
+    set2.valueTextSize = 1f
+    return set2
+  }
 
   private fun initializeChart(dayCount: Int) {
-    var TotalAmount = 0f
-    var Max = 0f
-    var sumCount = 0f
-    val entries = ArrayList<Entry>()
-    for (i in 0..dayCount) {
-      val daySum = sqliteManager.getDayDrinkAmount(DateUtils.getFarDay(dateCount + i))
-
-      // get total sum
-      TotalAmount += daySum.toFloat()
-
-      // get max
-      if (i == 0)
-        Max = daySum.toFloat()
-      else if (Max < daySum) Max = daySum.toFloat()
-
-      // count
-      if (daySum != 0)
-        sumCount++
-
-      // add entry
-      entries.add(Entry(daySum.toFloat(), i))
-    }
-
-    val labels = ArrayList<String>()
-    labels.add("1:00")
-    labels.add("2:00")
-    labels.add("3:00")
-    labels.add("4:00")
-    labels.add("5:00")
-    labels.add("6:00")
-    labels.add("7:00")
-
-
-    val dataset = LineDataSet(entries, "количество выпитой воды")
-    val data = LineData(labels, dataset)
-    chart_mainchart.data = data
-    chart_mainchart.setOnChartValueSelectedListener(this)
+//    var TotalAmount = 0f
+//    var Max = 0f
+//    var sumCount = 0f
+//    val entries = ArrayList<Entry>()
+//    for (i in 0..dayCount) {
+//      val daySum = sqliteManager.getDayDrinkAmount(DateUtils.getFarDay(dateCount + i))
+//
+//      // get total sum
+//      TotalAmount += daySum.toFloat()
+//
+//      // get max
+//      if (i == 0)
+//        Max = daySum.toFloat()
+//      else if (Max < daySum) Max = daySum.toFloat()
+//
+//      // count
+//      if (daySum != 0)
+//        sumCount++
+//
+//      // add entry
+//      entries.add(Entry(daySum.toFloat(), i))
+//    }
+//
+//    val labels = ArrayList<String>()
+//    labels.add("1:00")
+//    labels.add("2:00")
+//    labels.add("3:00")
+//    labels.add("4:00")
+//    labels.add("5:00")
+//    labels.add("6:00")
+//    labels.add("7:00")
+//
+//
+//    val dataset = LineDataSet(entries, "количество выпитой воды")
+//    val data = LineData(labels, dataset)
+//    chart_mainchart.data = data
+//    chart_mainchart.setOnChartValueSelectedListener(this)
 
     val computed = intArrayOf(Color.TRANSPARENT)
     val label = arrayOf("")
@@ -264,19 +294,19 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     rightAxis.axisLineColor = Color.TRANSPARENT
 
     // set max Y-Axis & chart message
-    val tv_chartMessage = rootView!!.findViewById(R.id.chart_tv_message) as TextView
-    if (TotalAmount > 0)
-      tv_chartMessage.visibility = View.INVISIBLE
-    else
-      tv_chartMessage.visibility = View.VISIBLE
+//    val tv_chartMessage = rootView!!.findViewById(R.id.chart_tv_message) as TextView
+//    if (TotalAmount > 0)
+//      tv_chartMessage.visibility = View.INVISIBLE
+//    else
+//      tv_chartMessage.visibility = View.VISIBLE
 
     // dataSet settings
-    dataset.setDrawFilled(true)
-    dataset.circleSize = 3f
-    dataset.valueTextSize = 13f
-    dataset.valueTextColor = Color.TRANSPARENT
-    dataset.enableDashedHighlightLine(10f, 1f, 0f)
-    dataset.valueFormatter = DataSetValueFormatter()
+//    dataset.setDrawFilled(true)
+//    dataset.circleSize = 3f
+//    dataset.valueTextSize = 13f
+//    dataset.valueTextColor = Color.TRANSPARENT
+//    dataset.enableDashedHighlightLine(10f, 1f, 0f)
+//    dataset.valueFormatter = DataSetValueFormatter()
   }
 
   /**
