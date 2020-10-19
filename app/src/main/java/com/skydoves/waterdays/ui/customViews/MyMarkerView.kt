@@ -38,15 +38,15 @@ class MyMarkerView(context: Context, layoutResource: Int) : MarkerView(context, 
     if (e is CandleEntry) {
       tvContent.text = Utils.formatNumber(e.high, 0, true) + "ед"
     } else {
-      tvContent.text = Utils.formatNumber(e.`val`, 0, true) + "ед"
+//      tvContent.text = Utils.formatNumber(e.`val`, 0, true) + "ед"
     }
   }
 
-  override fun getXOffset(xpos: Float): Int {
-    return -(width / 2)
-  }
+//  override fun getXOffset(xpos: Float): Int {
+//    return -(width / 2)
+//  }
 
-  override fun getYOffset(ypos: Float): Int {
-    return -height
-  }
+//  override fun getYOffset(ypos: Float): Int {
+//    return -height
+//  }
 }
