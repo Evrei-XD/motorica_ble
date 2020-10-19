@@ -16,6 +16,7 @@
 
 package com.skydoves.waterdays.ui.fragments.main
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
@@ -24,6 +25,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
@@ -42,7 +44,6 @@ import com.skydoves.waterdays.ble.ConstantManager
 import com.skydoves.waterdays.ble.SampleGattAttributes.*
 import com.skydoves.waterdays.persistence.sqlite.SqliteManager
 import com.skydoves.waterdays.ui.activities.main.MainActivity
-import com.skydoves.waterdays.ui.customViews.MyMarkerView
 import com.skydoves.waterdays.utils.DateUtils
 import kotlinx.android.synthetic.main.layout_chart.*
 import javax.inject.Inject
@@ -64,6 +65,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   var graphThread: Thread? = null
   var graphThreadFlag = false
   private var plotData = false
+  var objectAnimator: ObjectAnimator? = null
+  var objectAnimator2: ObjectAnimator? = null
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -84,8 +87,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     ////////initialized graph
     initializedSensorGraph()
-    graphThreadFlag = true
-    startGraphEnteringDataThread()
 
 
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
@@ -94,6 +95,9 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val deadZoneTv = rootView!!.findViewById(R.id.dead_zone_tv) as TextView
     val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
     val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
+    val scale = resources.displayMetrics.density
+    val limit_CH1 = rootView!!.findViewById(R.id.limit_CH1) as ImageView
+//    val limit_CH2 = rootView!!.findViewById(R.id.limit_CH2) as ImageView
 
 
     close_btn.setOnTouchListener(OnTouchListener { v, event ->
@@ -162,6 +166,32 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+      }
+    })
+    CH1_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+//        sensitivityTv.text = (seekBar.progress + 1).toString()
+        System.err.println("CH1" + seekBar.progress)
+
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+//        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 290 * scale + 0.5f - (seekBar.progress * scale + 0.5f))
+        objectAnimator?.duration = 200
+        objectAnimator?.start()
+      }
+    })
+    CH2_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+//        sensitivityTv.text = (seekBar.progress + 1).toString()
+        System.err.println("CH2" + seekBar.progress)
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+//        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
       }
     })
     brake_motor_sb.setOnClickListener(View.OnClickListener {
@@ -278,10 +308,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThread = Thread {
       var i = 0
       while (graphThreadFlag) {
-//        if (plotData) {
-//          addEntry(50, 200)
-//          plotData = false
-//        }
         main?.runOnUiThread(Runnable {
           if (i == 0) {
             addEntry(0, 255)
@@ -291,7 +317,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
             i = 0
           }
         })
-//        if (!plotData) {plotData = true}
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {
