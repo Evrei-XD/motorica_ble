@@ -27,9 +27,7 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.components.YAxis
 import com.github.mikephil.charting.data.Entry
@@ -85,7 +83,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 //    initializeChart(DateUtils.getDateDay("2020-10-16", DateUtils.dateFormat))//2020-10-14  DateUtils.getFarDay(0)
 
     ////////initialized graph
-    initializedGraphForChannel1()
+    initializedSensorGraph()
     graphThreadFlag = true
     startGraphEnteringDataThread()
 
@@ -197,28 +195,26 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val set = LineDataSet(null, null)
     set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set.lineWidth = 2f
-    set.color = Color.GREEN
-    set.cubicIntensity = 3f
-    set.setCircleColor(Color.GREEN)
-    set.fillAlpha = 65
+    set.color = R.color.orange
+    set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+    set.setCircleColor(Color.TRANSPARENT)
+    set.setCircleColorHole(Color.WHITE)
     set.fillColor = ColorTemplate.getHoloBlue()
     set.highLightColor = Color.rgb(244, 117, 177)
-    set.valueTextColor = Color.WHITE
-    set.valueTextSize = 1f
+    set.valueTextColor = Color.TRANSPARENT
     return set
   }
   private fun createSet2(): LineDataSet? {
     val set2 = LineDataSet(null, null)
     set2.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set2.lineWidth = 2f
-    set2.color = Color.BLUE
-    set2.cubicIntensity = 3f
-    set2.setCircleColor(Color.YELLOW)
-    set2.fillAlpha = 65
+    set2.color = Color.WHITE
+    set2.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
+    set2.setCircleColor(Color.TRANSPARENT)
+    set2.setCircleColorHole(R.color.orange)
     set2.fillColor = ColorTemplate.getHoloBlue()
     set2.highLightColor = Color.rgb(244, 117, 177)
-    set2.valueTextColor = Color.WHITE
-    set2.valueTextSize = 1f
+    set2.valueTextColor = Color.TRANSPARENT
     return set2
   }
   private fun addEntry(sens1: Int, sens2: Int) {
@@ -235,99 +231,65 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
       data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
       data.notifyDataChanged()
-//      data.notifyDataChanged()
       chart_mainchart.notifyDataSetChanged()
-      chart_mainchart.setVisibleXRangeMaximum(50f)
-      chart_mainchart.moveViewToX(set.entryCount - 50.toFloat()) //data.getEntryCount()
+      chart_mainchart.setVisibleXRangeMaximum(100f)
+      chart_mainchart.moveViewToX(set.entryCount - 100.toFloat()) //data.getEntryCount()
     }
   }
-  fun initializedGraphForChannel1() {
-    chart_mainchart.contentDescription//getDescription().setEnabled(true)
+  private fun initializedSensorGraph() {
+    chart_mainchart.contentDescription
     chart_mainchart.setTouchEnabled(false)
     chart_mainchart.setDragEnabled(false)
-    chart_mainchart.isDragDecelerationEnabled = false//setDragXEnabled(false)
+    chart_mainchart.isDragDecelerationEnabled = false
     chart_mainchart.setScaleEnabled(false)
     chart_mainchart.setDrawGridBackground(false)
     chart_mainchart.setPinchZoom(false)
-    chart_mainchart.setBackgroundColor(Color.BLACK)
+    chart_mainchart.setBackgroundColor(Color.TRANSPARENT)
     chart_mainchart.getHighlightByTouchPoint(1f, 1f)
     val data = LineData()
     val data2 = LineData()
-    chart_mainchart.setData(data)
-    chart_mainchart.setData(data2)
-    val legend: Legend = chart_mainchart.getLegend()
-    legend.form = Legend.LegendForm.CIRCLE
-    val x1: XAxis = chart_mainchart.getXAxis()
-    x1.textColor = Color.BLACK
-    x1.setDrawGridLines(false)
-    x1.setAxisMaximum(4000000f) //x1.resetAxisMaximum();
-    x1.setAvoidFirstLastClipping(true)
-    val y1: YAxis = chart_mainchart.getAxisLeft()
-    y1.textColor = Color.WHITE
-    y1.mAxisMaximum = 255f
-    y1.mAxisMinimum = 0f
-    y1.gridColor = Color.BLACK
-    y1.setDrawGridLines(false)
-    chart_mainchart.getAxisRight().setEnabled(false)
+    chart_mainchart.data = data
+    chart_mainchart.data = data2
+    chart_mainchart.legend.isEnabled = false
+    chart_mainchart.description.textColor = Color.TRANSPARENT
+    chart_mainchart.animateY(700)
 
-//    chart_mainchart.description.text = ""
-//    chart_mainchart.description.textSize = 16f
-//    chart_mainchart.description.textColor = Color.TRANSPARENT
-//    chart_mainchart.legend.isEnabled = false
-//    chart_mainchart.legend.isWordWrapEnabled = false
-//    chart_mainchart.legend.textColor = Color.TRANSPARENT
-////    chart_mainchart.legend.setCustom =computed, label)
-//
-//    chart_mainchart.setDrawGridBackground(false)
-//    chart_mainchart.axisLeft.setDrawGridLines(true)
-//    chart_mainchart.axisLeft.setDrawAxisLine(true)
-//    chart_mainchart.axisLeft.gridColor = Color.WHITE
-//    chart_mainchart.axisRight.setDrawGridLines(false)
-//    chart_mainchart.axisRight.textColor = Color.TRANSPARENT
-//    chart_mainchart.xAxis.setDrawGridLines(false)
-//
-//    chart_mainchart.setPinchZoom(false)
-//    chart_mainchart.isDragEnabled = true //здесь можно сделать изменение масштаба только по оси х
-//    chart_mainchart.setScaleEnabled(true)//и перетаскивание по ней же если поставить в обоих этих строчках true
-//    chart_mainchart.setScaleMinima(2f, 0f)//здесь можно увеличить начальный масштаб 2f = 2x
-//    chart_mainchart.setVisibleXRange(4f, 24f)//здесь можно настроить минимальный и максимальный диапазон увеличения
-//    chart_mainchart.xAxis.labelRotationAngle = 45f
-//    chart_mainchart.animateY(700)
-//
-//    val mv = context?.let { MyMarkerView(it, R.layout.custom_marker_view) }
-//    chart_mainchart.markerView = mv
-//
-//    // X - axis settings
-//    val xAxis = chart_mainchart.xAxis
-//    xAxis.textSize = 12f
-////    xAxis.spaceBetweenLabels = 4
-//    xAxis.position = XAxis.XAxisPosition.BOTTOM
-//    xAxis.textColor = Color.rgb(255, 255, 255)
-//    xAxis.axisLineColor = Color.WHITE
-//
-//
-//    // Y - axis settings
-//    val leftAxis = chart_mainchart.axisLeft
-//    leftAxis.textColor = Color.rgb(255, 255, 255)
-//    leftAxis.textSize = 12f
-//    leftAxis.axisLineColor = Color.TRANSPARENT
-//    leftAxis.setStartAtZero(true)
-//    leftAxis.mAxisMaximum = 255f
-//    leftAxis.mAxisMinimum = 0f
-//
-//    // Y2 - axis settings
-//    val rightAxis = chart_mainchart.axisRight
-//    rightAxis.axisLineColor = Color.TRANSPARENT
+    val x: XAxis = chart_mainchart.xAxis
+    x.textColor = Color.TRANSPARENT
+    x.setDrawGridLines(false)
+    x.axisMaximum = 4000000f
+    x.setAvoidFirstLastClipping(true)
+    x.position = XAxis.XAxisPosition.BOTTOM
+
+    val y: YAxis = chart_mainchart.axisLeft
+    y.textColor = Color.WHITE
+    y.mAxisMaximum = 255f
+    y.mAxisMinimum = 0f
+    y.textSize = 12f
+    y.setDrawGridLines(true)
+    y.setDrawAxisLine(false)
+    y.gridColor = Color.WHITE
+    chart_mainchart.axisRight.axisLineColor = Color.TRANSPARENT
+    chart_mainchart.axisRight.textColor = Color.TRANSPARENT
   }
 
   fun startGraphEnteringDataThread() {
     graphThread = Thread {
+      var i = 0
       while (graphThreadFlag) {
         if (plotData) {
-          addEntry(50, 250)
+          addEntry(50, 200)
           plotData = false
         }
-        main?.runOnUiThread(Runnable { addEntry(10, 255) })
+        main?.runOnUiThread(Runnable {
+          if (i == 0) {
+            addEntry(10, 255)
+            i = 1
+          } else {
+            addEntry(100, 120)
+            i = 0
+          }
+        })
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {
