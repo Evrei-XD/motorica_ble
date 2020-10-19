@@ -224,10 +224,11 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       var set2 = data.getDataSetByIndex(1)
       if (set == null) {
         set = createSet()
-        data.addDataSet(set)
         set2 = createSet2()
-        data.addDataSet(set2)
+//        data.addDataSet(set)
+//        data.addDataSet(set2)
       }
+
       data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
       data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
       data.notifyDataChanged()
@@ -278,7 +279,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       var i = 0
       while (graphThreadFlag) {
         if (plotData) {
-//          addEntry(50, 200)
+          addEntry(50, 200)
           plotData = false
         }
         main?.runOnUiThread(Runnable {
@@ -302,30 +303,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   override fun onValueSelected(e: Entry?, h: Highlight?) {
     TODO("Not yet implemented")
   }
-
-  /**
-   * YAxis : Water Y-Value Formatter
-   */
-//  private inner class YAxisValueFormatter : com.github.mikephil.charting.formatter.YAxisValueFormatter {
-//    override fun getFormattedValue(value: Float, yAxis: YAxis): String {
-//      return Math.round(value).toString() + " ед"
-//    }
-//  }
-
-  /**
-   * Water DataSet-Value Formatter
-   */
-//  private inner class DataSetValueFormatter : ValueFormatter {
-//    override fun getFormattedValue(value: Float, entry: Entry, dataSetIndex: Int, viewPortHandler: ViewPortHandler): String {
-//      return Math.round(value).toString() + ""
-//    }
-//  }
-
-//  override fun onValueSelected(e: Entry, dataSetIndex: Int, h: Highlight) {
-//    System.err.println("подпись: " + DateUtils.getIndexOfDayName(e.xIndex))
-//
-//    System.err.println("подпись: " + e.`val` + " ml")
-//  }
 
   override fun onNothingSelected() {
 
