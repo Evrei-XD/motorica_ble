@@ -63,7 +63,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var main: MainActivity? = null
   var graphThread: Thread? = null
   var graphThreadFlag = false
-  private var plotData = true
+  private var plotData = false
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -225,8 +225,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       if (set == null) {
         set = createSet()
         set2 = createSet2()
-//        data.addDataSet(set)
-//        data.addDataSet(set2)
+        data.addDataSet(set)
+        data.addDataSet(set2)
       }
 
       data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
@@ -278,19 +278,20 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     graphThread = Thread {
       var i = 0
       while (graphThreadFlag) {
-        if (plotData) {
-          addEntry(50, 200)
-          plotData = false
-        }
+//        if (plotData) {
+//          addEntry(50, 200)
+//          plotData = false
+//        }
         main?.runOnUiThread(Runnable {
           if (i == 0) {
-//            addEntry(10, 255)
-            i = 0
+            addEntry(0, 255)
+            i = 1
           } else {
-//            addEntry(100, 120)
+            addEntry(100, 120)
             i = 0
           }
         })
+//        if (!plotData) {plotData = true}
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {
