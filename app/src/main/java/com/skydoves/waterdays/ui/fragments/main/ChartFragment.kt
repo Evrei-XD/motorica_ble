@@ -198,7 +198,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set.color = Color.rgb(255, 171, 0)
     set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set.setCircleColor(Color.TRANSPARENT)
-    set.setCircleColorHole(Color.WHITE)
+    set.setCircleColorHole(Color.TRANSPARENT)
     set.fillColor = ColorTemplate.getHoloBlue()
     set.highLightColor = Color.rgb(244, 117, 177)
     set.valueTextColor = Color.TRANSPARENT
@@ -211,7 +211,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set2.color = Color.WHITE
     set2.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set2.setCircleColor(Color.TRANSPARENT)
-    set2.setCircleColorHole(Color.rgb(255, 171, 0))
+    set2.setCircleColorHole(Color.TRANSPARENT)
     set2.fillColor = ColorTemplate.getHoloBlue()
     set2.highLightColor = Color.rgb(244, 117, 177)
     set2.valueTextColor = Color.TRANSPARENT
@@ -273,7 +273,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     chart_mainchart.axisRight.textColor = Color.TRANSPARENT
   }
 
-  fun startGraphEnteringDataThread() {
+  private fun startGraphEnteringDataThread() {
     graphThread = Thread {
       var i = 0
       while (graphThreadFlag) {
@@ -284,7 +284,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.runOnUiThread(Runnable {
           if (i == 0) {
             addEntry(10, 255)
-            i = 1
+            i = 0
           } else {
             addEntry(100, 120)
             i = 0
@@ -297,114 +297,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       }
     }
     graphThread?.start()
-  }
-
-  private fun initializeChart(dayCount: Int) {
-    var TotalAmount = 0f
-    var Max = 0f
-    var sumCount = 0f
-    val entries = ArrayList<Entry>()
-    for (i in 0..dayCount) {
-      val daySum = sqliteManager.getDayDrinkAmount(DateUtils.getFarDay(dateCount + i))
-
-      // get total sum
-      TotalAmount += daySum.toFloat()
-
-      // get max
-      if (i == 0)
-        Max = daySum.toFloat()
-      else if (Max < daySum) Max = daySum.toFloat()
-
-      // count
-      if (daySum != 0)
-        sumCount++
-
-      // add entry
-      entries.add(Entry(daySum.toFloat(), i.toFloat()))
-    }
-
-    val labels = ArrayList<String>()
-    labels.add("1:00")
-    labels.add("2:00")
-    labels.add("3:00")
-    labels.add("4:00")
-    labels.add("5:00")
-    labels.add("6:00")
-    labels.add("7:00")
-
-
-    val dataset = LineDataSet(entries, "количество выпитой воды")
-//    val data = LineData(labels, dataset)
-//    chart_mainchart.data = data
-    chart_mainchart.setOnChartValueSelectedListener(this)
-
-    val computed = intArrayOf(Color.TRANSPARENT)
-    val label = arrayOf("")
-//    chart_mainchart.setDescription("")
-//    chart_mainchart.setDescriptionTextSize(16f)
-//    chart_mainchart.setDescriptionColor(Color.TRANSPARENT)
-    chart_mainchart.legend.isEnabled = false
-    chart_mainchart.legend.isWordWrapEnabled = false
-    chart_mainchart.legend.textColor = Color.TRANSPARENT
-//    chart_mainchart.legend.setCustom(computed, label)
-
-    chart_mainchart.setDrawGridBackground(false)
-    chart_mainchart.axisLeft.setDrawGridLines(true)
-    chart_mainchart.axisLeft.setDrawAxisLine(true)
-    chart_mainchart.axisLeft.gridColor = Color.WHITE
-    chart_mainchart.axisRight.setDrawGridLines(false)
-    chart_mainchart.axisRight.textColor = Color.TRANSPARENT
-    chart_mainchart.xAxis.setDrawGridLines(false)
-
-    chart_mainchart.setPinchZoom(false)
-    chart_mainchart.isDragEnabled = true //здесь можно сделать изменение масштаба только по оси х
-    chart_mainchart.setScaleEnabled(true)//и перетаскивание по ней же если поставить в обоих этих строчках true
-    chart_mainchart.setScaleMinima(2f, 0f)//здесь можно увеличить начальный масштаб 2f = 2x
-    chart_mainchart.setVisibleXRange(4f, 24f)//здесь можно настроить минимальный и максимальный диапазон увеличения
-    chart_mainchart.xAxis.labelRotationAngle = 45f
-    chart_mainchart.animateY(700)
-
-    val mv = context?.let { MyMarkerView(it, R.layout.custom_marker_view) }
-    chart_mainchart.markerView = mv
-
-    // X - axis settings
-    val xAxis = chart_mainchart.xAxis
-    xAxis.textSize = 12f
-//    xAxis.spaceBetweenLabels = 4
-    xAxis.position = XAxis.XAxisPosition.BOTTOM
-    xAxis.textColor = Color.rgb(255, 255, 255)
-    xAxis.axisLineColor = Color.WHITE
-
-
-    // Y - axis settings
-    val leftAxis = chart_mainchart.axisLeft
-    leftAxis.textColor = Color.rgb(255, 255, 255)
-    leftAxis.textSize = 12f
-    leftAxis.axisLineColor = Color.TRANSPARENT
-    leftAxis.setStartAtZero(true)
-    leftAxis.mAxisMaximum = 255f
-    leftAxis.mAxisMinimum = 0f
-    leftAxis.spaceTop = 10f
-//    leftAxis.valueFormatter = YAxisValueFormatter()
-
-    // Y2 - axis settings
-    val rightAxis = chart_mainchart.axisRight
-    rightAxis.axisLineColor = Color.TRANSPARENT
-
-     //set max Y-Axis & chart message
-//    val tv_chartMessage = rootView!!.findViewById(R.id.chart_tv_message) as TextView
-//    if (TotalAmount > 0)
-//      tv_chartMessage.visibility = View.INVISIBLE
-//    else
-//      tv_chartMessage.visibility = View.VISIBLE
-
-     //dataSet settings
-    dataset.setDrawFilled(true)
-    dataset.circleSize = 3f
-    dataset.valueTextSize = 13f
-    dataset.valueTextColor = Color.TRANSPARENT
-    dataset.enableDashedHighlightLine(10f, 1f, 0f)
-//    dataset.valueFormatter = DataSetValueFormatter()
   }
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {
