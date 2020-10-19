@@ -195,7 +195,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val set = LineDataSet(null, null)
     set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set.lineWidth = 2f
-    set.color = R.color.orange
+    set.color = Color.rgb(255, 171, 0)
     set.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set.setCircleColor(Color.TRANSPARENT)
     set.setCircleColorHole(Color.WHITE)
@@ -211,7 +211,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set2.color = Color.WHITE
     set2.mode = LineDataSet.Mode.HORIZONTAL_BEZIER
     set2.setCircleColor(Color.TRANSPARENT)
-    set2.setCircleColorHole(R.color.orange)
+    set2.setCircleColorHole(Color.rgb(255, 171, 0))
     set2.fillColor = ColorTemplate.getHoloBlue()
     set2.highLightColor = Color.rgb(244, 117, 177)
     set2.valueTextColor = Color.TRANSPARENT
