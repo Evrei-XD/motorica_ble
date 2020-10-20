@@ -40,8 +40,6 @@ public class SampleGattAttributes {
     public static String SENS_OPTIONS = "0000fe4d-8e22-4541-9d4c-21edae82ed19";
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
-    public static String SIMPLE_SEARCH_CHARACTERISTIC = "0000d850-0000-1000-8000-00805f9b34fb";
-    public static String SIMPLE2_SEARCH_CHARACTERISTIC = "0000736d-0000-1000-8000-00805f9b34fb";
     // Sample Commands.
     public static String READ = "READ";
     public static String WRITE = "WRITE";
