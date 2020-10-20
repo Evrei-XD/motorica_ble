@@ -68,6 +68,8 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String MIO_DATA =
             "com.example.bluetooth.le.MIO_DATA";
+    public final static String SENSORS_DATA_THREAD_FLAG =
+            "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
     public final static String SIMPLE_SEARCH_DATA =
             "com.example.bluetooth.le.SIMPLE_SEARCH_DATA";
     public final static String SIMPLE2_SEARCH_DATA =
@@ -186,6 +188,7 @@ public class BluetoothLeService extends Service {
             }
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
+                intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
             } else {System.err.println("BluetoothLeService-------------> данные не на график");}
         }
         sendBroadcast(intent);

@@ -64,7 +64,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var main: MainActivity? = null
   var graphThread: Thread? = null
   var graphThreadFlag = false
-  private var plotData = false
+  private var plotData = true
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
 
@@ -306,16 +306,24 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
-//      var i = 0
       while (graphThreadFlag) {
         main?.runOnUiThread(Runnable {
-//          if (i == 0) {
-            addEntry(0, 255)
-//            i = 1
-//          } else {
-//            addEntry(100, 120)
-//            i = 0
-//          }
+          if (plotData) {
+            addEntry(10,255)
+            addEntry(115,150)
+            addEntry(10,255)
+            addEntry(115,150)
+            addEntry(10,255)
+            addEntry(115,150)
+            addEntry(10,255)
+            addEntry(115,150)
+            addEntry(10,255)
+            addEntry(115,150)
+            addEntry(10,255)
+            addEntry(115,150)
+            plotData = false
+          }
+          addEntry(main?.getDataSens1()!!, main?.getDataSens2()!!)
         })
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
@@ -327,7 +335,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   }
 
   override fun onValueSelected(e: Entry?, h: Highlight?) {
-    TODO("Not yet implemented")
   }
 
   override fun onNothingSelected() {

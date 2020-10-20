@@ -35,8 +35,7 @@ import com.skydoves.waterdays.R
 import com.skydoves.waterdays.ble.BluetoothLeService
 import com.skydoves.waterdays.ble.ConstantManager
 import com.skydoves.waterdays.ble.SampleGattAttributes
-import com.skydoves.waterdays.ble.SampleGattAttributes.READ
-import com.skydoves.waterdays.ble.SampleGattAttributes.WRITE
+import com.skydoves.waterdays.ble.SampleGattAttributes.*
 import com.skydoves.waterdays.compose.BaseActivity
 import com.skydoves.waterdays.compose.qualifiers.RequirePresenter
 import com.skydoves.waterdays.consts.IntentExtras
@@ -62,6 +61,7 @@ import kotlin.collections.ArrayList
 @RequirePresenter(MainPresenter::class)
 class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView {
 
+  private var sensorsDataThreadFlag: Boolean = false
   private var nAdapter: NfcAdapter? = null
   private lateinit var mSectionsPagerAdapter: SectionsPagerAdapter
   private var mDeviceName: String? = null
@@ -76,6 +76,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private var mCharacteristic: BluetoothGattCharacteristic? = null
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
+  var subscribeThread: Thread? = null
 
 
   private val LIST_NAME = "NAME"
@@ -129,15 +130,16 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
         displayGattServices(mBluetoothLeService!!.supportedGattServices)
       } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
         displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
+        setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
       }
     }
   }
 
   private fun displayData(data: ByteArray?) {
     if (data != null) {
-      dataSens1 = castUnsignedCharToInt(data[1])
-      dataSens2 = castUnsignedCharToInt(data[2])
-      System.err.println("displayData data[1] = " + data[1])
+      dataSens1 = castUnsignedCharToInt(data[6])
+      dataSens2 = castUnsignedCharToInt(data[8])
+      System.err.println("displayData data[6] = " + data[6])
     }
   }
 
@@ -364,16 +366,15 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private fun enableInterface(enabled: Boolean) {
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
-//    mOpenBtn.setEnabled(enabled)
-//    mCloseBtn.setEnabled(enabled)
-//    mFirstByteSeekBar.setEnabled(enabled)
-//    mSecondByteSeekBar.setEnabled(enabled)
+    sensorsDataThreadFlag = enabled
+    startSubscribeSensorsDataThread()
   }
 
-  fun BleCommand(byteArray: ByteArray, Command: String, typeCommand: String){
+  fun BleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
         if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+          mCharacteristic = mGattCharacteristics[i][j]
           if (typeCommand == WRITE){
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
               val massage = byteArray
@@ -384,15 +385,37 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
           if (typeCommand == READ){
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-              val massage = byteArray
-              mCharacteristic?.value = massage
               mBluetoothLeService?.readCharacteristic(mCharacteristic)
+            }
+          }
+
+          if (typeCommand == NOTIFY){
+            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
+              mNotifyCharacteristic = mCharacteristic
+              mBluetoothLeService!!.setCharacteristicNotification(
+                      mCharacteristic, true)
             }
           }
 
         }
       }
     }
+  }
+
+  private fun startSubscribeSensorsDataThread() {
+    subscribeThread = Thread {
+      while (sensorsDataThreadFlag) {
+        runOnUiThread(Runnable {
+          BleCommand(null, MIO_MEASUREMENT, NOTIFY)
+          System.err.println("startSubscribeSensorsDataThread попытка подписки")
+        })
+        try {
+          Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
+        } catch (ignored: Exception) {
+        }
+      }
+    }
+    subscribeThread?.start()
   }
 
   private fun makeGattUpdateIntentFilter(): IntentFilter? {
@@ -402,5 +425,15 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED)
     intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE)
     return intentFilter
+  }
+
+  fun getDataSens1(): Int {
+    return dataSens1
+  }
+  fun getDataSens2(): Int {
+    return dataSens2
+  }
+  fun setSensorsDataThreadFlag (value: Boolean){
+    sensorsDataThreadFlag = value
   }
 }
