@@ -102,19 +102,19 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     close_btn.setOnTouchListener(OnTouchListener { v, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.DelaiGriaz(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.DelaiGriaz(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
       false
     })
     open_btn.setOnTouchListener(OnTouchListener { v, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.DelaiGriaz(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.DelaiGriaz(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
       false
     })
@@ -125,7 +125,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE)
+        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE)
       }
     })
     start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -135,7 +135,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE)
+        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE)
       }
     })
     start_up_time_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -145,7 +145,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.DelaiGriaz(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE)
+        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE, WRITE)
       }
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -155,7 +155,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE)
+        main?.BleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
       }
     })
     sensitivity_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -165,14 +165,13 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+        main?.BleCommand(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE, WRITE)
       }
     })
     CH1_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
 //        sensitivityTv.text = (seekBar.progress + 1).toString()
         System.err.println("CH1" + seekBar.progress)
-
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
@@ -197,10 +196,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     brake_motor_sb.setOnClickListener(View.OnClickListener {
       if (brake_motor_sb.isChecked) {
         brakeMotorTv.text = 1.toString()
-        main?.DelaiGriaz(byteArrayOf(0x01), BRAKE_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE)
       } else {
         brakeMotorTv.text = 0.toString()
-        main?.DelaiGriaz(byteArrayOf(0x00), BRAKE_MOTOR_HDLE)
+        main?.BleCommand(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE)
       }
     })
   }

@@ -35,7 +35,8 @@ import com.skydoves.waterdays.R
 import com.skydoves.waterdays.ble.BluetoothLeService
 import com.skydoves.waterdays.ble.ConstantManager
 import com.skydoves.waterdays.ble.SampleGattAttributes
-import com.skydoves.waterdays.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE
+import com.skydoves.waterdays.ble.SampleGattAttributes.READ
+import com.skydoves.waterdays.ble.SampleGattAttributes.WRITE
 import com.skydoves.waterdays.compose.BaseActivity
 import com.skydoves.waterdays.compose.qualifiers.RequirePresenter
 import com.skydoves.waterdays.consts.IntentExtras
@@ -44,7 +45,6 @@ import com.skydoves.waterdays.presenters.MainPresenter
 import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
 import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
 import com.skydoves.waterdays.ui.adapters.SectionsPagerAdapter
-import com.skydoves.waterdays.utils.NavigationUtils
 import com.skydoves.waterdays.viewTypes.MainActivityView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -74,6 +74,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private var mConnected = false
   private var mNotifyCharacteristic: BluetoothGattCharacteristic? = null
   private var mCharacteristic: BluetoothGattCharacteristic? = null
+  private var dataSens1 = 0x00
+  private var dataSens2 = 0x00
 
 
   private val LIST_NAME = "NAME"
@@ -126,11 +128,26 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
         // Show all the supported services and characteristics on the user interface.
         displayGattServices(mBluetoothLeService!!.supportedGattServices)
       } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-//        displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
+        displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
       }
     }
   }
 
+  private fun displayData(data: ByteArray?) {
+    if (data != null) {
+      dataSens1 = castUnsignedCharToInt(data[1])
+      dataSens2 = castUnsignedCharToInt(data[2])
+      System.err.println("displayData data[1] = " + data[1])
+    }
+  }
+
+  private fun castUnsignedCharToInt(Ubyte: Byte): Int {
+    var cast = Ubyte.toInt()
+    if (cast < 0) {
+      cast += 256
+    }
+    return cast
+  }
   // If a given GATT characteristic is selected, check for supported features.  This sample
   // demonstrates 'Read' 'Write' and 'Notify' features.  See
   // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
@@ -353,17 +370,26 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 //    mSecondByteSeekBar.setEnabled(enabled)
   }
 
-  fun DelaiGriaz (byteArray: ByteArray, typeCommand: String){
+  fun BleCommand(byteArray: ByteArray, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
-        if (mGattCharacteristics[i][j].uuid.toString() == typeCommand) {
-          mCharacteristic = mGattCharacteristics[i][j]
-          if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-            val massage = byteArray
-            mCharacteristic?.value = massage
-            mBluetoothLeService?.writeCharacteristic(mCharacteristic)
-//              mBluetoothLeService?.readCharacteristic(mCharacteristic)
+        if (mGattCharacteristics[i][j].uuid.toString() == Command) {
+          if (typeCommand == WRITE){
+            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
+              val massage = byteArray
+              mCharacteristic?.value = massage
+              mBluetoothLeService?.writeCharacteristic(mCharacteristic)
+            }
           }
+
+          if (typeCommand == READ){
+            if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
+              val massage = byteArray
+              mCharacteristic?.value = massage
+              mBluetoothLeService?.readCharacteristic(mCharacteristic)
+            }
+          }
+
         }
       }
     }
