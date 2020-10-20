@@ -137,9 +137,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
   private fun displayData(data: ByteArray?) {
     if (data != null) {
-      dataSens1 = castUnsignedCharToInt(data[6])
-      dataSens2 = castUnsignedCharToInt(data[8])
-      System.err.println("displayData data[6] = " + data[6])
+      dataSens1 = castUnsignedCharToInt(data[1])
+      dataSens2 = castUnsignedCharToInt(data[2])
     }
   }
 

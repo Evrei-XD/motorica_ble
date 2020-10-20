@@ -26,6 +26,7 @@ import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.TextView
@@ -96,8 +97,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
     val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
     val scale = resources.displayMetrics.density
-    val limit_CH1 = rootView!!.findViewById(R.id.limit_CH1) as ImageView
-//    val limit_CH2 = rootView!!.findViewById(R.id.limit_CH2) as ImageView
+    val limit_CH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
+    val limit_CH2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
 
 
     close_btn.setOnTouchListener(OnTouchListener { v, event ->
@@ -168,29 +169,30 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.BleCommand(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE, WRITE)
       }
     })
-    CH1_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+    open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        sensitivityTv.text = (seekBar.progress + 1).toString()
         System.err.println("CH1" + seekBar.progress)
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
         objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
       }
     })
-    CH2_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+    close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-//        sensitivityTv.text = (seekBar.progress + 1).toString()
         System.err.println("CH2" + seekBar.progress)
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-//        main?.DelaiGriaz(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE)
+        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
+        objectAnimator2 = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator2?.duration = 200
+        objectAnimator2?.start()
       }
     })
     brake_motor_sb.setOnClickListener(View.OnClickListener {
