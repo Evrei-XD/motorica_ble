@@ -24,10 +24,7 @@ import com.skydoves.waterdays.presenters.SetGoalPresenter
 import com.skydoves.waterdays.presenters.SetLocalPresenter
 import com.skydoves.waterdays.ui.activities.intro.StartActivity
 import com.skydoves.waterdays.ui.activities.settings.SetBubbleColorActivity
-import com.skydoves.waterdays.ui.fragments.main.AlarmFragment
-import com.skydoves.waterdays.ui.fragments.main.ChartFragment
-import com.skydoves.waterdays.ui.fragments.main.DailyFragment
-import com.skydoves.waterdays.ui.fragments.main.MainWaterFragment
+import com.skydoves.waterdays.ui.fragments.main.*
 import com.skydoves.waterdays.utils.AlarmUtils
 
 /**
@@ -55,6 +52,8 @@ interface ApplicationGraph {
   fun inject(target_: ChartFragment)
 
   fun inject(target_: MainWaterFragment)
+
+  fun inject(target_: SensSettingsFragment)
 
   fun inject(target_: DailyFragment)
 

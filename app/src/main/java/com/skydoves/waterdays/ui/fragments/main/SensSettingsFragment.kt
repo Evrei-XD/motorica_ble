@@ -1,0 +1,115 @@
+/*
+ * Copyright (C) 2016 skydoves
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package com.skydoves.waterdays.ui.fragments.main
+
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.graphics.Color
+import android.os.Bundle
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.RelativeLayout
+import android.widget.SeekBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import com.github.jorgecastillo.FillableLoader
+import com.github.jorgecastillo.FillableLoaderBuilder
+import com.github.jorgecastillo.clippingtransforms.WavesClippingTransform
+import com.skydoves.waterdays.R
+import com.skydoves.waterdays.WDApplication
+import com.skydoves.waterdays.ble.SampleGattAttributes
+import com.skydoves.waterdays.ble.SampleGattAttributes.*
+import com.skydoves.waterdays.events.rx.RxUpdateMainEvent
+import com.skydoves.waterdays.persistence.preference.PreferenceKeys
+import com.skydoves.waterdays.persistence.preference.PreferenceManager
+import com.skydoves.waterdays.persistence.sqlite.SqliteManager
+import com.skydoves.waterdays.services.receivers.LocalWeather
+import com.skydoves.waterdays.ui.activities.main.MainActivity
+import com.skydoves.waterdays.ui.activities.main.SelectDrinkActivity
+import com.skydoves.waterdays.utils.DateUtils
+import com.skydoves.waterdays.utils.FillableLoaderPaths
+import com.skydoves.waterdays.utils.NetworkUtils
+import io.reactivex.android.schedulers.AndroidSchedulers
+import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_sens_settings.*
+import kotlinx.android.synthetic.main.layout_todaywaterdrink.*
+import java.util.concurrent.ExecutionException
+import javax.inject.Inject
+
+/**
+ * Created by skydoves on 2016-10-15.
+ * Updated by skydoves on 2017-08-17.
+ * Copyright (c) 2017 skydoves rights reserved.
+ */
+
+class SensSettingsFragment : Fragment() {
+
+  @Inject
+  lateinit var preferenceManager: PreferenceManager
+  @Inject
+  lateinit var sqliteManager: SqliteManager
+
+  private var rootView: View? = null
+  private var mContext: Context? = null
+  private lateinit var fillAbleLoader: FillableLoader
+  private var main: MainActivity? = null
+
+  override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    val rootView = inflater.inflate(R.layout.layout_sens_settings, container, false)
+    WDApplication.component.inject(this)
+    if (activity != null) { main = activity as MainActivity? }
+    this.rootView = rootView
+    this.mContext = context
+    return rootView
+  }
+
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    super.onViewCreated(view, savedInstanceState)
+    initializeUI()
+  }
+
+  @SuppressLint("SetTextI18n", "CheckResult")
+  private fun initializeUI() {
+    val correlatorNoiseThreshold1Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_1_tv) as TextView
+    val correlatorNoiseThreshold2Tv = rootView!!.findViewById(R.id.correlator_noise_threshold_2_tv) as TextView
+
+    correlator_noise_threshold_1_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlatorNoiseThreshold1Tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.BleCommand(byteArrayOf(0x01, seekBar.progress.toByte(), 0x01), SENS_OPTIONS, WRITE)
+      }
+    })
+    correlator_noise_threshold_2_sb.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+        correlatorNoiseThreshold2Tv.text = seekBar.progress.toString()
+      }
+
+      override fun onStartTrackingTouch(seekBar: SeekBar) {}
+      override fun onStopTrackingTouch(seekBar: SeekBar) {
+        main?.BleCommand(byteArrayOf(0x01, seekBar.progress.toByte(), 0x02), SENS_OPTIONS, WRITE)
+      }
+    })
+  }
+}
