@@ -48,6 +48,7 @@ import com.skydoves.waterdays.viewTypes.MainActivityView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.layout_chart.*
+import kotlinx.android.synthetic.main.layout_sens_settings.*
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
@@ -365,6 +366,14 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private fun enableInterface(enabled: Boolean) {
     close_btn.isEnabled = enabled
     open_btn.isEnabled = enabled
+    shutdown_current_sb.isEnabled = enabled
+    start_up_step_sb.isEnabled = enabled
+    start_up_time_sb.isEnabled = enabled
+    dead_zone_sb.isEnabled = enabled
+    sensitivity_sb.isEnabled = enabled
+    brake_motor_sb.isEnabled = enabled
+    correlator_noise_threshold_1_sb.isEnabled = enabled
+    correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
     startSubscribeSensorsDataThread()
   }
