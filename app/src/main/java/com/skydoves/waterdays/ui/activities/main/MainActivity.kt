@@ -78,6 +78,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
   var subscribeThread: Thread? = null
+  var moveThread: Thread? = null
 
 
   private val LIST_NAME = "NAME"
@@ -375,7 +376,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-    startSubscribeSensorsDataThread()
+//    startSubscribeSensorsDataThread()
+    startChangeStateThread()
   }
 
   fun BleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
@@ -424,6 +426,45 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
       }
     }
     subscribeThread?.start()
+  }
+
+  private fun startChangeStateThread() {
+    moveThread = Thread {
+      var state = 0
+      while (true) {
+        runOnUiThread(Runnable {
+          when (state) {
+            0 -> {
+              BleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
+              System.err.println("startChangeStateThread отправка команды на открытие")
+              state = 1
+            }
+            1 -> {
+              BleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
+              System.err.println("startChangeStateThread отправка команды на остановку")
+              state = 2
+            }
+            2 -> {
+              BleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+              System.err.println("startChangeStateThread отправка команды на закрытие")
+              state = 3
+            }
+            3 -> {
+              BleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+              System.err.println("startChangeStateThread отправка команды на остановку")
+              state = 0
+            }
+          }
+
+        })
+        try {
+          Thread.sleep(700)
+        } catch (ignored: Exception) {
+        }
+      }
+    }
+    moveThread?.start()
+
   }
 
   private fun makeGattUpdateIntentFilter(): IntentFilter? {
