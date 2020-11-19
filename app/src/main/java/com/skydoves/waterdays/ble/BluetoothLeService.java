@@ -37,8 +37,9 @@ import java.util.UUID;
 import timber.log.Timber;
 
 import static com.skydoves.waterdays.ble.ConstantManager.SHOW_EVERYONE_RECEIVE_BYTE;
+import static com.skydoves.waterdays.ble.SampleGattAttributes.CLOSE_MOTOR_HDLE;
 import static com.skydoves.waterdays.ble.SampleGattAttributes.MIO_MEASUREMENT;
-
+import static com.skydoves.waterdays.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 
 
 /**
@@ -68,6 +69,10 @@ public class BluetoothLeService extends Service {
             "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
     public final static String MIO_DATA =
             "com.example.bluetooth.le.MIO_DATA";
+    public final static String OPEN_MOTOR_DATA =
+            "com.example.bluetooth.le.OPEN_MOTOR_DATA";
+    public final static String CLOSE_MOTOR_DATA =
+            "com.example.bluetooth.le.CLOSE_MOTOR_DATA";
     public final static String SENSORS_DATA_THREAD_FLAG =
             "com.example.bluetooth.le.SENSORS_DATA_THREAD_FLAG";
     public final static String SIMPLE_SEARCH_DATA =
@@ -189,7 +194,14 @@ public class BluetoothLeService extends Service {
             if (String.valueOf(characteristic.getUuid()).equals(MIO_MEASUREMENT)){
                 intent.putExtra(MIO_DATA, data);
                 intent.putExtra(SENSORS_DATA_THREAD_FLAG, false);
-            } else {System.err.println("BluetoothLeService-------------> данные не на график");}
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(OPEN_MOTOR_HDLE)){
+                intent.putExtra(OPEN_MOTOR_DATA, data);
+            }
+            if (String.valueOf(characteristic.getUuid()).equals(CLOSE_MOTOR_HDLE)){
+                intent.putExtra(CLOSE_MOTOR_DATA, data);
+            }
+            else {System.err.println("BluetoothLeService-------------> данные не на график");}
         }
         sendBroadcast(intent);
     }

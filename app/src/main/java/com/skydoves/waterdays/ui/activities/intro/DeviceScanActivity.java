@@ -17,6 +17,7 @@
 package com.skydoves.waterdays.ui.activities.intro;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -282,6 +283,7 @@ public class DeviceScanActivity extends ListActivity {
             return i;
         }
 
+        @SuppressLint("InflateParams")
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             ViewHolder viewHolder;

@@ -77,6 +77,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private var mCharacteristic: BluetoothGattCharacteristic? = null
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
+  private var state = 0
   var subscribeThread: Thread? = null
   var moveThread: Thread? = null
 
@@ -132,6 +133,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
         displayGattServices(mBluetoothLeService!!.supportedGattServices)
       } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
         displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
+        displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
+        displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
         setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
       }
     }
@@ -141,6 +144,20 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     if (data != null) {
       dataSens1 = castUnsignedCharToInt(data[1])
       dataSens2 = castUnsignedCharToInt(data[2])
+    }
+  }
+  private fun displayDataWriteOpen(data: ByteArray?) {
+    if (data != null) {
+      if (data[0].toInt() == 1){ state = 1 }
+      if (data[0].toInt() == 0){ state = 2 }
+      System.err.println("open data[0]="+data[0]+" data[1]="+data[1])
+    }
+  }
+  private fun displayDataWriteClose(data: ByteArray?) {
+    if (data != null) {
+      if (data[0].toInt() == 1){ state = 3 }
+      if (data[0].toInt() == 0){ state = 0 }
+      System.err.println("close data[0]="+data[0]+" data[1]="+data[1])
     }
   }
 
@@ -297,6 +314,12 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     unregisterReceiver(mGattUpdateReceiver)
   }
 
+  override fun onDestroy() {
+    super.onDestroy()
+    unbindService(mServiceConnection)
+    mBluetoothLeService = null
+  }
+
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
@@ -430,41 +453,35 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
   private fun startChangeStateThread() {
     moveThread = Thread {
-      var state = 0
       while (true) {
         runOnUiThread(Runnable {
           when (state) {
             0 -> {
               BleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
               System.err.println("startChangeStateThread отправка команды на открытие")
-              state = 1
             }
             1 -> {
               BleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
               System.err.println("startChangeStateThread отправка команды на остановку")
-              state = 2
             }
             2 -> {
               BleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
               System.err.println("startChangeStateThread отправка команды на закрытие")
-              state = 3
             }
             3 -> {
               BleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
               System.err.println("startChangeStateThread отправка команды на остановку")
-              state = 0
             }
           }
 
         })
         try {
-          Thread.sleep(700)
+          Thread.sleep(10)
         } catch (ignored: Exception) {
         }
       }
     }
     moveThread?.start()
-
   }
 
   private fun makeGattUpdateIntentFilter(): IntentFilter? {

@@ -195,7 +195,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         objectAnimator2?.start()
       }
     })
-    brake_motor_sb.setOnClickListener(View.OnClickListener {
+    brake_motor_sb.setOnClickListener {
       if (brake_motor_sb.isChecked) {
         brakeMotorTv.text = 1.toString()
         main?.BleCommand(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE)
@@ -203,7 +203,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         brakeMotorTv.text = 0.toString()
         main?.BleCommand(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE)
       }
-    })
+    }
   }
 
   override fun onResume() {
