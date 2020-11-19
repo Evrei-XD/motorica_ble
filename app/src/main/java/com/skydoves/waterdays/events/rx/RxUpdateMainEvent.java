@@ -36,10 +36,6 @@ public class RxUpdateMainEvent {
     return instance;
   }
 
-  public void sendEvent() {
-    subject.onNext(true);
-  }
-
   public void updateBadge() {
     subject.onNext(false);
   }

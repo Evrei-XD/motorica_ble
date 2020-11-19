@@ -39,9 +39,12 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.skydoves.waterdays.R;
 import com.skydoves.waterdays.ble.ConstantManager;
@@ -64,16 +67,21 @@ public class DeviceScanActivity extends ListActivity {
     private static final long SCAN_PERIOD = 10000;
     public static final int MY_PERMISSIONS_REQUEST_LOCATION = 99;
 
+    RecyclerView pairedDeviceList;
+    ScanListAdapter mScanListAdapter;
+    ArrayList<ScanItem> scanList;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        getActionBar().setTitle(R.string.title_devices);
-        mHandler = new Handler();
 
-        // Use this check to determine whether BLE is supported on the device.  Then you can
-        // selectively disable BLE-related features.
+//        setContentView(R.layout.activity_scan);
+//        scanList = new ArrayList<>();
+//        buildScanListView();
+
+        mHandler = new Handler();
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-//            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -338,5 +346,12 @@ public class DeviceScanActivity extends ListActivity {
     static class ViewHolder {
         TextView deviceName;
         TextView deviceAddress;
+    }
+
+    public void buildScanListView() {
+        pairedDeviceList = findViewById(R.id.activity_scan_paired_list);
+        pairedDeviceList.setHasFixedSize(true);
+        pairedDeviceList.setLayoutManager(new LinearLayoutManager(this));
+        mScanListAdapter = new ScanListAdapter(this, scanList, (ScanListAdapter.OnScanMyListener) this);
     }
 }

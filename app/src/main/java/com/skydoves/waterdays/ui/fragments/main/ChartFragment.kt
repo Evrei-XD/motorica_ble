@@ -25,7 +25,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.View.OnTouchListener
 import android.view.ViewGroup
-import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.SeekBar.OnSeekBarChangeListener
@@ -63,8 +62,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var rootView: View? = null
   private var dateCount = 0
   private var main: MainActivity? = null
-  var graphThread: Thread? = null
-  var graphThreadFlag = false
+  private var graphThread: Thread? = null
+  private var graphThreadFlag = false
   private var plotData = true
   var objectAnimator: ObjectAnimator? = null
   var objectAnimator2: ObjectAnimator? = null
@@ -103,19 +102,19 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     close_btn.setOnTouchListener(OnTouchListener { v, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.BleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.BleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
       false
     })
     open_btn.setOnTouchListener(OnTouchListener { v, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
-        main?.BleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
       if (event.action == MotionEvent.ACTION_UP) {
-        main?.BleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
       false
     })
@@ -126,7 +125,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), SHUTDOWN_CURRENT_HDLE, WRITE)
       }
     })
     start_up_step_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -136,7 +135,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE)
       }
     })
     start_up_time_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -146,7 +145,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE, WRITE)
       }
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -156,7 +155,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
       }
     })
     sensitivity_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -166,7 +165,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE, WRITE)
       }
     })
     open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
@@ -176,7 +175,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
         objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
@@ -189,7 +188,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.BleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
         objectAnimator2 = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator2?.duration = 200
         objectAnimator2?.start()
@@ -198,10 +197,10 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     brake_motor_sb.setOnClickListener {
       if (brake_motor_sb.isChecked) {
         brakeMotorTv.text = 1.toString()
-        main?.BleCommand(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x01), BRAKE_MOTOR_HDLE, WRITE)
       } else {
         brakeMotorTv.text = 0.toString()
-        main?.BleCommand(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf(0x00), BRAKE_MOTOR_HDLE, WRITE)
       }
     }
   }

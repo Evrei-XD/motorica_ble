@@ -19,7 +19,7 @@ package com.skydoves.waterdays
 import android.app.Application
 import com.skydoves.waterdays.persistence.preference.PreferenceManager
 import com.skydoves.waterdays.persistence.sqlite.SqliteManager
-import com.skydoves.waterdays.utils.AlarmUtils
+//import com.skydoves.waterdays.utils.AlarmUtils
 import dagger.Module
 import dagger.Provides
 import javax.inject.Singleton
@@ -47,9 +47,9 @@ class ApplicationModule(private val application: Application) {
         SqliteManager.DATABASE_VERSION)
   }
 
-  @Provides
-  @Singleton
-  internal fun provideAlarmUtils(): AlarmUtils {
-    return AlarmUtils(this.application)
-  }
+//  @Provides
+//  @Singleton
+//  internal fun provideAlarmUtils(): AlarmUtils {
+//    return AlarmUtils(this.application)
+//  }
 }

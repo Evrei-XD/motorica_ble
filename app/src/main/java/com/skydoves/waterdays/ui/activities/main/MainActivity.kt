@@ -17,32 +17,26 @@
 package com.skydoves.waterdays.ui.activities.main
 
 import android.annotation.SuppressLint
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.bluetooth.BluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattService
 import android.content.*
-import android.content.pm.PackageManager
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.os.Bundle
 import android.os.IBinder
 import android.view.View
 import android.widget.ExpandableListView
-import android.widget.ExpandableListView.OnChildClickListener
 import android.widget.SimpleExpandableListAdapter
 import com.skydoves.waterdays.R
 import com.skydoves.waterdays.ble.BluetoothLeService
 import com.skydoves.waterdays.ble.ConstantManager
-import com.skydoves.waterdays.ble.SampleGattAttributes
 import com.skydoves.waterdays.ble.SampleGattAttributes.*
 import com.skydoves.waterdays.compose.BaseActivity
 import com.skydoves.waterdays.compose.qualifiers.RequirePresenter
-import com.skydoves.waterdays.consts.IntentExtras
 import com.skydoves.waterdays.events.rx.RxUpdateMainEvent
 import com.skydoves.waterdays.presenters.MainPresenter
-import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
-import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
+//import com.skydoves.waterdays.services.receivers.AlarmBootReceiver
+//import com.skydoves.waterdays.services.receivers.LocalWeatherReceiver
 import com.skydoves.waterdays.ui.adapters.SectionsPagerAdapter
 import com.skydoves.waterdays.viewTypes.MainActivityView
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -78,19 +72,17 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private var dataSens1 = 0x00
   private var dataSens2 = 0x00
   private var state = 0
-  var subscribeThread: Thread? = null
-  var moveThread: Thread? = null
+  private var subscribeThread: Thread? = null
+  private var moveThread: Thread? = null
 
 
-  private val LIST_NAME = "NAME"
-  private val LIST_UUID = "UUID"
-  private val myBuffer = byteArrayOf(0x00, 0x00)
-  private val lockServiceSettings = false
+  private val listName = "NAME"
+  private val listUUID = "UUID"
 
   // Code to manage Service lifecycle.
   private val mServiceConnection: ServiceConnection = object : ServiceConnection {
     override fun onServiceConnected(componentName: ComponentName, service: IBinder) {
-      mBluetoothLeService = (service as BluetoothLeService.LocalBinder).getService()
+      mBluetoothLeService = (service as BluetoothLeService.LocalBinder).service
       if (!mBluetoothLeService?.initialize()!!) {
         Timber.e("Unable to initialize Bluetooth")
         finish()
@@ -113,29 +105,34 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private val mGattUpdateReceiver: BroadcastReceiver = object : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
       val action = intent.action
-      if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-        //connected state
-        mConnected = true
-        mConnectView!!.visibility = View.VISIBLE
-        mDisconnectView!!.visibility = View.GONE
-        System.err.println("DeviceControlActivity-------> момент индикации коннекта")
-        invalidateOptionsMenu()
-      } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-        //disconnected state
-        mConnected = false
-        mConnectView!!.visibility = View.GONE
-        mDisconnectView!!.visibility = View.VISIBLE
-        System.err.println("DeviceControlActivity-------> момент индикации коннекта")
-        invalidateOptionsMenu()
-        clearUI()
-      } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
-        // Show all the supported services and characteristics on the user interface.
-        displayGattServices(mBluetoothLeService!!.supportedGattServices)
-      } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
-        displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
-        displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
-        displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
-        setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
+      when {
+          BluetoothLeService.ACTION_GATT_CONNECTED == action -> {
+            //connected state
+            mConnected = true
+            mConnectView!!.visibility = View.VISIBLE
+            mDisconnectView!!.visibility = View.GONE
+            System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+            invalidateOptionsMenu()
+          }
+          BluetoothLeService.ACTION_GATT_DISCONNECTED == action -> {
+            //disconnected state
+            mConnected = false
+            mConnectView!!.visibility = View.GONE
+            mDisconnectView!!.visibility = View.VISIBLE
+            System.err.println("DeviceControlActivity-------> момент индикации коннекта")
+            invalidateOptionsMenu()
+            clearUI()
+          }
+          BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED == action -> {
+            // Show all the supported services and characteristics on the user interface.
+            displayGattServices(mBluetoothLeService!!.supportedGattServices)
+          }
+          BluetoothLeService.ACTION_DATA_AVAILABLE == action -> {
+            displayData(intent.getByteArrayExtra(BluetoothLeService.MIO_DATA)) //вывод на график данных из характеристики показаний пульса
+            displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.OPEN_MOTOR_DATA))
+            displayDataWriteOpen(intent.getByteArrayExtra(BluetoothLeService.CLOSE_MOTOR_DATA))
+            setSensorsDataThreadFlag(intent.getBooleanExtra(BluetoothLeService.SENSORS_DATA_THREAD_FLAG, true))
+          }
       }
     }
   }
@@ -153,13 +150,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
       System.err.println("open data[0]="+data[0]+" data[1]="+data[1])
     }
   }
-  private fun displayDataWriteClose(data: ByteArray?) {
-    if (data != null) {
-      if (data[0].toInt() == 1){ state = 3 }
-      if (data[0].toInt() == 0){ state = 0 }
-      System.err.println("close data[0]="+data[0]+" data[1]="+data[1])
-    }
-  }
 
   private fun castUnsignedCharToInt(Ubyte: Byte): Int {
     var cast = Ubyte.toInt()
@@ -167,53 +157,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
       cast += 256
     }
     return cast
-  }
-  // If a given GATT characteristic is selected, check for supported features.  This sample
-  // demonstrates 'Read' 'Write' and 'Notify' features.  See
-  // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
-  // list of supported characteristic features.
-  private val servicesListClickListener = OnChildClickListener { parent, v, groupPosition, childPosition, id ->
-    if (mGattCharacteristics != null) {
-      mCharacteristic = mGattCharacteristics[groupPosition][childPosition]
-      System.err.println("groupPosition=$groupPosition")
-      System.err.println("childPosition=$childPosition")
-      System.err.println("mCharacteristic=$mCharacteristic")
-      val charaProp: Int = mCharacteristic?.getProperties()!!
-      var properties = ""
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_READ > 0) {
-        if (mNotifyCharacteristic != null) {
-          mBluetoothLeService!!.setCharacteristicNotification(
-                  mNotifyCharacteristic, false)
-          mNotifyCharacteristic = null
-        }
-        mBluetoothLeService!!.readCharacteristic(mCharacteristic)
-        properties = properties + "R " //= properties+"R ";
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-        properties = properties + "W "
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_NOTIFY > 0) {
-        mNotifyCharacteristic = mCharacteristic
-        mBluetoothLeService!!.setCharacteristicNotification(
-                mCharacteristic, true)
-        properties = properties + "N "
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_INDICATE > 0) {
-        properties = properties + "I "
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_WRITE_NO_RESPONSE > 0) {
-        properties = properties + "WWR "
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_SIGNED_WRITE > 0) {
-        properties = properties + "ASW "
-      }
-      if (charaProp and BluetoothGattCharacteristic.PROPERTY_BROADCAST > 0) {
-        properties = properties + "BROAD "
-      }
-      System.err.println("uygwefyubhkcbqjwe" + properties)
-      return@OnChildClickListener true
-    }
-    false
   }
 
   private fun clearUI() {
@@ -235,7 +178,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
     // Sets up UI references.
     mGattServicesList = findViewById(R.id.gatt_services_list)
-    mGattServicesList?.setOnChildClickListener(servicesListClickListener)
     mConnectView = findViewById(R.id.connect_view)
     mDisconnectView = findViewById(R.id.disconnect_view)
 
@@ -250,15 +192,14 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     weatherAlarm()
 
     // set boot receiver
-    val receiver = ComponentName(this, AlarmBootReceiver::class.java)
-    val pm = packageManager
-    pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
+//    val receiver = ComponentName(this, AlarmBootReceiver::class.java)
+//    val pm = packageManager
+//    pm.setComponentEnabledSetting(receiver, PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP)
 
     RxUpdateMainEvent.getInstance().observable
-        .compose(bindToLifecycle<Boolean>())
+        .compose(bindToLifecycle())
         .observeOn(AndroidSchedulers.mainThread())
-        .subscribe { flag ->
-//          if (!flag) showBadge(0)
+        .subscribe {
           mSectionsPagerAdapter.notifyDataSetChanged()
         }
   }
@@ -278,10 +219,10 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
         for (i in rawMsgs.indices)
           messages[i] = rawMsgs[i] as NdefMessage
-        val payload = messages[0]!!.getRecords()[0].payload
+        val payload = messages[0]!!.records[0].payload
 
         presenter.addRecord(String(payload))
-        mSectionsPagerAdapter!!.notifyDataSetChanged()
+        mSectionsPagerAdapter.notifyDataSetChanged()
       }
     }
   }
@@ -297,15 +238,11 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
     val i = Intent(this, javaClass)
     i.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
-    val pIntent = PendingIntent.getActivity(this, 0, i, 0)
-
-    val filters = arrayOf(filter)
-//    nAdapter!!.enableForegroundDispatch(this, pIntent, filters, null)
 
     //BLE
     registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter())
     if (mBluetoothLeService != null) {
-      val result = mBluetoothLeService!!.connect(mDeviceAddress)
+      mBluetoothLeService!!.connect(mDeviceAddress)
     }
   }
 
@@ -328,18 +265,10 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
 
   private fun weatherAlarm() {
     if (!presenter.weatherAlarm) {
-      val mCalendar = GregorianCalendar()
-      val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-      alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, mCalendar.timeInMillis, (1200 * 1000).toLong(), pendingIntent(IntentExtras.ALARM_PENDING_REQUEST_CODE))
       presenter.weatherAlarm = true
     }
   }
 
-  private fun pendingIntent(requestCode: Int): PendingIntent {
-    val intent = Intent(this, LocalWeatherReceiver::class.java)
-    intent.putExtra(IntentExtras.ALARM_PENDING_REQUEST, requestCode)
-    return PendingIntent.getBroadcast(this, requestCode, intent, 0)
-  }
 
   // Demonstrates how to iterate through the supported GATT Services/Characteristics.
   // In this sample, we populate the data structure that is bound to the ExpandableListView
@@ -347,7 +276,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private fun displayGattServices(gattServices: List<BluetoothGattService>?) {
     System.err.println("DeviceControlActivity-------> момент начала выстраивания списка параметров")
     if (gattServices == null) return
-    var uuid: String? = null
+    var uuid: String?
     val unknownServiceString = resources.getString(R.string.unknown_service)
     val unknownCharaString = resources.getString(R.string.unknown_characteristic)
     val gattServiceData = ArrayList<HashMap<String, String?>>()
@@ -359,8 +288,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     for (gattService in gattServices) {
       val currentServiceData = HashMap<String, String?>()
       uuid = gattService.uuid.toString()
-      currentServiceData[LIST_NAME] = SampleGattAttributes.lookup(uuid, unknownServiceString)
-      currentServiceData[LIST_UUID] = uuid
+      currentServiceData[listName] = lookup(uuid, unknownServiceString)
+      currentServiceData[listUUID] = uuid
       gattServiceData.add(currentServiceData)
       val gattCharacteristicGroupData = ArrayList<HashMap<String, String?>>()
       val gattCharacteristics = gattService.characteristics
@@ -371,8 +300,8 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
         charas.add(gattCharacteristic)
         val currentCharaData = HashMap<String, String?>()
         uuid = gattCharacteristic.uuid.toString()
-        currentCharaData[LIST_NAME] = SampleGattAttributes.lookup(uuid, unknownCharaString)
-        currentCharaData[LIST_UUID] = uuid
+        currentCharaData[listName] = lookup(uuid, unknownCharaString)
+        currentCharaData[listUUID] = uuid
         gattCharacteristicGroupData.add(currentCharaData)
       }
       mGattCharacteristics.add(charas)
@@ -381,9 +310,9 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     val gattServiceAdapter = SimpleExpandableListAdapter(
             this,
             gattServiceData,
-            android.R.layout.simple_expandable_list_item_2, arrayOf(LIST_NAME, LIST_UUID), intArrayOf(android.R.id.text1, android.R.id.text2),
+            android.R.layout.simple_expandable_list_item_2, arrayOf(listName, listUUID), intArrayOf(android.R.id.text1, android.R.id.text2),
             gattCharacteristicData,
-            android.R.layout.simple_expandable_list_item_2, arrayOf(LIST_NAME, LIST_UUID), intArrayOf(android.R.id.text1, android.R.id.text2))
+            android.R.layout.simple_expandable_list_item_2, arrayOf(listName, listUUID), intArrayOf(android.R.id.text1, android.R.id.text2))
     mGattServicesList!!.setAdapter(gattServiceAdapter)
     enableInterface(true)
   }
@@ -399,19 +328,18 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     correlator_noise_threshold_1_sb.isEnabled = enabled
     correlator_noise_threshold_2_sb.isEnabled = enabled
     sensorsDataThreadFlag = enabled
-//    startSubscribeSensorsDataThread()
-    startChangeStateThread()
+    startSubscribeSensorsDataThread()
+//    startChangeStateThread()
   }
 
-  fun BleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
+  fun bleCommand(byteArray: ByteArray?, Command: String, typeCommand: String){
     for (i in mGattCharacteristics.indices) {
       for (j in mGattCharacteristics[i].indices) {
         if (mGattCharacteristics[i][j].uuid.toString() == Command) {
           mCharacteristic = mGattCharacteristics[i][j]
           if (typeCommand == WRITE){
             if (mCharacteristic?.properties!! and BluetoothGattCharacteristic.PROPERTY_WRITE > 0) {
-              val massage = byteArray
-              mCharacteristic?.value = massage
+              mCharacteristic?.value = byteArray
               mBluetoothLeService?.writeCharacteristic(mCharacteristic)
             }
           }
@@ -438,10 +366,10 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   private fun startSubscribeSensorsDataThread() {
     subscribeThread = Thread {
       while (sensorsDataThreadFlag) {
-        runOnUiThread(Runnable {
-          BleCommand(null, MIO_MEASUREMENT, NOTIFY)
+        runOnUiThread {
+          bleCommand(null, MIO_MEASUREMENT, NOTIFY)
           System.err.println("startSubscribeSensorsDataThread попытка подписки")
-        })
+        }
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {
@@ -451,38 +379,38 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     subscribeThread?.start()
   }
 
-  private fun startChangeStateThread() {
-    moveThread = Thread {
-      while (true) {
-        runOnUiThread(Runnable {
-          when (state) {
-            0 -> {
-              BleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
-              System.err.println("startChangeStateThread отправка команды на открытие")
-            }
-            1 -> {
-              BleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
-              System.err.println("startChangeStateThread отправка команды на остановку")
-            }
-            2 -> {
-              BleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
-              System.err.println("startChangeStateThread отправка команды на закрытие")
-            }
-            3 -> {
-              BleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
-              System.err.println("startChangeStateThread отправка команды на остановку")
-            }
-          }
-
-        })
-        try {
-          Thread.sleep(10)
-        } catch (ignored: Exception) {
-        }
-      }
-    }
-    moveThread?.start()
-  }
+//  private fun startChangeStateThread() {
+//    moveThread = Thread {
+//      while (true) {
+//        runOnUiThread(Runnable {
+//          when (state) {
+//            0 -> {
+//              bleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
+//              System.err.println("startChangeStateThread отправка команды на открытие")
+//            }
+//            1 -> {
+//              bleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
+//              System.err.println("startChangeStateThread отправка команды на остановку")
+//            }
+//            2 -> {
+//              bleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+//              System.err.println("startChangeStateThread отправка команды на закрытие")
+//            }
+//            3 -> {
+//              bleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
+//              System.err.println("startChangeStateThread отправка команды на остановку")
+//            }
+//          }
+//
+//        })
+//        try {
+//          Thread.sleep(10)
+//        } catch (ignored: Exception) {
+//        }
+//      }
+//    }
+//    moveThread?.start()
+//  }
 
   private fun makeGattUpdateIntentFilter(): IntentFilter? {
     val intentFilter = IntentFilter()

@@ -52,14 +52,14 @@ class SqliteManager(context: Context, name: String, factory: SQLiteDatabase.Curs
   }
 
   fun addCapacity(capacity: Capacity) {
-    val query_addCapacity = "Insert Into " + TABLE_CAPACITY + " (capacity) Values(" + capacity.amount + ");"
-    writableDatabase.execSQL(query_addCapacity)
+    val queryAddCapacity = "Insert Into " + TABLE_CAPACITY + " (capacity) Values(" + capacity.amount + ");"
+    writableDatabase.execSQL(queryAddCapacity)
     Timber.d("SUCCESS Capacity Inserted : %s", capacity.amount)
   }
 
   fun deleteCapacity(capacity: Capacity) {
-    val query_deleteCapacity = "Delete from " + TABLE_CAPACITY + " Where capacity = " + capacity.amount + ""
-    writableDatabase.execSQL(query_deleteCapacity)
+    val queryDeleteCapacity = "Delete from " + TABLE_CAPACITY + " Where capacity = " + capacity.amount + ""
+    writableDatabase.execSQL(queryDeleteCapacity)
     Timber.d("SUCCESS Capacity Deleted : %s", capacity.amount)
   }
 
