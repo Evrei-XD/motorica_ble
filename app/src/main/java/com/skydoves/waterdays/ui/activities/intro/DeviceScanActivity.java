@@ -49,6 +49,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.skydoves.waterdays.R;
 import com.skydoves.waterdays.ble.ConstantManager;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 
 //import com.example.android.motorica.R;
@@ -79,33 +81,26 @@ public class DeviceScanActivity extends ListActivity {
 //        scanList = new ArrayList<>();
 //        buildScanListView();
 
+
         mHandler = new Handler();
+        // Checks if Bluetooth is supported on the device.
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
             finish();
         }
-
-
-        // Initializes a Bluetooth adapter.  For API level 18 and above, get a reference to
-        // BluetoothAdapter through BluetoothManager.
-        final BluetoothManager bluetoothManager =
-                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-
-
-        // Checks if Bluetooth is supported on the device.
         if (mBluetoothAdapter == null) {
-//            Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
-
-        // Checks Permission Location.
+        final BluetoothManager bluetoothManager =
+                (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
         checkLocationPermission();
     }
 
-    public boolean checkLocationPermission() {
+    public void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -114,14 +109,9 @@ public class DeviceScanActivity extends ListActivity {
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.title_location_permission)
                         .setMessage(R.string.text_location_permission)
-                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                ActivityCompat.requestPermissions(DeviceScanActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                                        MY_PERMISSIONS_REQUEST_LOCATION);
-                            }
-                        })
+                        .setPositiveButton(R.string.ok, (dialogInterface, i) -> ActivityCompat.requestPermissions(DeviceScanActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSIONS_REQUEST_LOCATION))
                         .create()
                         .show();
 
@@ -131,24 +121,18 @@ public class DeviceScanActivity extends ListActivity {
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
-            return false;
-        } else {
-            return true;
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_REQUEST_LOCATION: {
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    ContextCompat.checkSelfPermission(this,
-                            Manifest.permission.ACCESS_FINE_LOCATION);//Request location updates:
-                }
+                                           @NotNull String[] permissions, @NotNull int[] grantResults) {
+        if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults.length > 0
+                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                ContextCompat.checkSelfPermission(this,
+                        Manifest.permission.ACCESS_FINE_LOCATION);//Request location updates:
             }
-
         }
     }
 
@@ -233,13 +217,10 @@ public class DeviceScanActivity extends ListActivity {
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    invalidateOptionsMenu();
-                }
+            mHandler.postDelayed(() -> {
+                mScanning = false;
+                mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                invalidateOptionsMenu();
             }, SCAN_PERIOD);
 
             mScanning = true;
@@ -258,7 +239,7 @@ public class DeviceScanActivity extends ListActivity {
 
         public LeDeviceListAdapter() {
             super();
-            mLeDevices = new ArrayList<BluetoothDevice>();
+            mLeDevices = new ArrayList<>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
         }
 
@@ -324,20 +305,17 @@ public class DeviceScanActivity extends ListActivity {
 
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    if(device.getName() != null){
-                        System.err.println("\n=======================================================================");
-                        System.err.println("DeviceScanActivity ---------> device name:"+device.getName());
-                        System.err.println("DeviceScanActivity ---------> device type:"+device.getType());
-                        System.err.println("DeviceScanActivity ---------> device bluetooth class:"+device.getBluetoothClass());
-                        System.err.println("DeviceScanActivity ---------> device address:"+device.getAddress());
-                        System.err.println("DeviceScanActivity ---------> device bound state:"+device.getBondState());
+            runOnUiThread(() -> {
+                if(device.getName() != null){
+                    System.err.println("\n=======================================================================");
+                    System.err.println("DeviceScanActivity ---------> device name:"+device.getName());
+                    System.err.println("DeviceScanActivity ---------> device type:"+device.getType());
+                    System.err.println("DeviceScanActivity ---------> device bluetooth class:"+device.getBluetoothClass());
+                    System.err.println("DeviceScanActivity ---------> device address:"+device.getAddress());
+                    System.err.println("DeviceScanActivity ---------> device bound state:"+device.getBondState());
 
-                        mLeDeviceListAdapter.addDevice(device);
-                        mLeDeviceListAdapter.notifyDataSetChanged();
-                    }
+                    mLeDeviceListAdapter.addDevice(device);
+                    mLeDeviceListAdapter.notifyDataSetChanged();
                 }
             });
         }
