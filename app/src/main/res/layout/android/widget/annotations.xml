@@ -1,0 +1,5 @@
+<root>
+    <item name='android.widget.BaseAdapter void setAutofillOptions(java.lang.CharSequence...) 0'>
+        <annotation name='org.jetbrains.annotations.Nullable' />
+    </item>
+</root>
