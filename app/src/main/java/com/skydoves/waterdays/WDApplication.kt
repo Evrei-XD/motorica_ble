@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -20,10 +17,6 @@ import androidx.multidex.MultiDexApplication
 import dagger.Component
 import javax.inject.Singleton
 
-/**
- * Developed by skydoves on 2017-08-19.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 class WDApplication : MultiDexApplication() {
 

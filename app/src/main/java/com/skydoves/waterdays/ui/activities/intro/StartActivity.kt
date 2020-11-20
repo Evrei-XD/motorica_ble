@@ -24,7 +24,6 @@ import com.skydoves.waterdays.R
 import com.skydoves.waterdays.WDApplication
 import com.skydoves.waterdays.ble.ConstantManager
 import com.skydoves.waterdays.compose.BaseView
-import com.skydoves.waterdays.models.Capacity
 import com.skydoves.waterdays.persistence.preference.PreferenceKeys
 import com.skydoves.waterdays.persistence.preference.PreferenceManager
 import com.skydoves.waterdays.persistence.sqlite.SqliteManager
@@ -32,11 +31,8 @@ import com.skydoves.waterdays.ui.activities.main.MainActivity
 import com.skydoves.waterdays.ui.fragments.intro.SlideFragment
 import javax.inject.Inject
 
-/**
- * Developed by skydoves on 2017-08-17.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
+@Suppress("NAME_SHADOWING")
 class StartActivity : AppIntro(), BaseView {
   val EXTRAS_DEVICE_NAME = "DEVICE_NAME"
   val EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS"
@@ -66,16 +62,6 @@ class StartActivity : AppIntro(), BaseView {
       return
     }
 
-    if (!preferenceManager.getBoolean(PreferenceKeys.INIT_CAPACITY.first, PreferenceKeys.INIT_CAPACITY.second)) {
-      sqliteManager.addCapacity(Capacity(null, 125))
-      sqliteManager.addCapacity(Capacity(null, 250))
-      sqliteManager.addCapacity(Capacity(null, 350))
-      sqliteManager.addCapacity(Capacity(null, 500))
-      sqliteManager.addCapacity(Capacity(null, 750))
-      sqliteManager.addCapacity(Capacity(null, 1000))
-      preferenceManager.putBoolean(PreferenceKeys.INIT_CAPACITY.first, true)
-    }
-
     initializeUI()
   }
 
@@ -89,19 +75,15 @@ class StartActivity : AppIntro(), BaseView {
 
   override fun onSkipPressed(currentFragment: Fragment?) {
     super.onSkipPressed(currentFragment)
-    ActivityStart()
+    activityStart()
   }
 
   override fun onDonePressed(currentFragment: Fragment?) {
     super.onDonePressed(currentFragment)
-    ActivityStart()
+    activityStart()
   }
 
-  override fun onSlideChanged(oldFragment: Fragment?, newFragment: Fragment?) {
-    super.onSlideChanged(oldFragment, newFragment)
-  }
-
-  private fun ActivityStart() {
+  private fun activityStart() {
 //    startActivity(Intent(this, SetWeightActivity::class.java))//было
     val intent = Intent(this, MainActivity::class.java)
     intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, mDeviceName)

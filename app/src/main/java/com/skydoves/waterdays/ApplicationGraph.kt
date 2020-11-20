@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -16,30 +13,15 @@
 
 package com.skydoves.waterdays
 
-import com.skydoves.waterdays.presenters.AlarmScreenPresenter
 import com.skydoves.waterdays.presenters.MainPresenter
 //import com.skydoves.waterdays.presenters.MakeAlarmPresenter
-import com.skydoves.waterdays.presenters.SelectDrinkPresenter
-import com.skydoves.waterdays.presenters.SetGoalPresenter
-import com.skydoves.waterdays.presenters.SetLocalPresenter
 import com.skydoves.waterdays.ui.activities.intro.StartActivity
 //import com.skydoves.waterdays.ui.activities.settings.SetBubbleColorActivity
 import com.skydoves.waterdays.ui.fragments.main.*
-//import com.skydoves.waterdays.utils.AlarmUtils
 
-/**
- * Developed by skydoves on 2017-08-19.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 interface ApplicationGraph {
   fun inject(target_: StartActivity)
-
-  fun inject(target_: SetGoalPresenter)
-
-  fun inject(target_: SetLocalPresenter)
-
-  fun inject(target_: AlarmScreenPresenter)
 
 //  fun inject(target_: MakeAlarmPresenter)
 
@@ -56,8 +38,6 @@ interface ApplicationGraph {
   fun inject(target_: SensSettingsFragment)
 
 //  fun inject(target_: DailyFragment)
-
-  fun inject(target_: SelectDrinkPresenter)
 
 //  fun inject(target_: SetBubbleColorActivity)
 }

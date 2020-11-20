@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -42,10 +39,6 @@ import static com.skydoves.waterdays.ble.SampleGattAttributes.MIO_MEASUREMENT;
 import static com.skydoves.waterdays.ble.SampleGattAttributes.OPEN_MOTOR_HDLE;
 
 
-/**
- * Service for managing connection and data communication with a GATT server hosted on a
- * given Bluetooth LE device.
- */
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
 
@@ -86,10 +79,7 @@ public class BluetoothLeService extends Service {
             UUID.fromString(MIO_MEASUREMENT);
     public final static UUID UUID_MY_TEST_MEASUREMENT =
             UUID.fromString(SampleGattAttributes.MY_TEST_MEASUREMENT);
-//    public final static UUID UUID_MY_MEASUREMENT_1 =
-//            UUID.fromString(SampleGattAttributes.MY_MEASUREMENT_1);
-//    public final static UUID UUID_MY_MEASUREMENT_2 =
-//            UUID.fromString(SampleGattAttributes.MY_MEASUREMENT_2);
+
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.

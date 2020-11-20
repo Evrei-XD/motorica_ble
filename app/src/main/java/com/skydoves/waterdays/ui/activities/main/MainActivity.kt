@@ -1,7 +1,4 @@
-/*
- * Copyright (C) 2016 skydoves
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
+/* Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -46,12 +43,6 @@ import kotlinx.android.synthetic.main.layout_sens_settings.*
 import timber.log.Timber
 import java.util.*
 import kotlin.collections.ArrayList
-
-/**
- * Created by skydoves on 2016-10-15.
- * Updated by skydoves on 2017-08-17.
- * Copyright (c) 2017 skydoves rights reserved.
- */
 
 @RequirePresenter(MainPresenter::class)
 class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivityView {
