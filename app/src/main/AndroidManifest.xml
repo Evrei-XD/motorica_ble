@@ -43,45 +43,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".ui.activities.settings.SetGoalActivity" />
-        <activity
-            android:name=".ui.activities.main.SelectDrinkActivity"
-            android:theme="@style/AppTheme.mDialog" />
-        <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".ui.activities.settings.NFCActivity" />
-        <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".ui.activities.main.MakeAlarmActivity" />
-        <activity
             android:name=".ui.activities.settings.SettingActivity"
             android:theme="@style/AppTheme.Setting" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
-            android:name=".ui.activities.settings.SetWeightActivity" />
-        <activity
-            android:theme="@style/AppTheme.NoActionBar"
-            android:name=".ui.activities.settings.SetLocalActivity" />
-
-        <receiver android:name=".services.receivers.AlarmReceiver" />
-        <receiver android:name=".services.receivers.LocalWeatherReceiver" />
-        <receiver
-            android:name=".services.receivers.AlarmBootReceiver"
-            android:enabled="true"
-            android:exported="false"
-            android:label="BootReceiver">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <activity android:name=".ui.activities.settings.SetMyCupActivity" />
-        <activity android:name=".ui.activities.alarm.AlarmScreenActivity" />
-        <activity
-            android:theme="@style/AppTheme.NoActionBar"
             android:name=".ui.activities.intro.StartActivity" />
-        <activity android:name=".ui.activities.settings.SetBubbleColorActivity" />
 
         <service android:name="com.skydoves.waterdays.ble.BluetoothLeService" android:enabled="true"/>
     </application>

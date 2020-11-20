@@ -16,6 +16,7 @@ import com.skydoves.waterdays.R;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -25,6 +26,7 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
     private Context mCtx;
     private List<ScanItem> mScanList;
     private OnScanMyListener mOnScanMyListener;
+
 
     public ScanListAdapter(Context  mCtx, List<ScanItem> mScanList, OnScanMyListener onScanMyListener) {
         this.mCtx = mCtx;
@@ -78,13 +80,12 @@ public class ScanListAdapter extends RecyclerView.Adapter<ScanListAdapter.ScanVi
         public void onClick(View v) {
             onScanMyListener.onScanClick(getAdapterPosition());
         }
-
     }
 
     public interface OnScanMyListener { void onScanClick(int position); }
 
     @Override
-    public void addDeviceToScanList(String item, BluetoothDevice device) { }
+    public void addDeviceToScanList(String item, BluetoothDevice device) {  }
     @Override
     public void clearScanList() { }
 

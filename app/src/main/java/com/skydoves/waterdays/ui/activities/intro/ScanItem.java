@@ -14,10 +14,6 @@ public class ScanItem {
     public int getImage() {
         return image;
     }
-
-    public String getTitle() {
-        return title;
-    }
-
+    public String getTitle() { return title; }
     public boolean getCheckProgress() { return checkProgress; }
 }

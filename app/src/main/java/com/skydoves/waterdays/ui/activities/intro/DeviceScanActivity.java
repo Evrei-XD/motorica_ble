@@ -69,6 +69,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     RecyclerView pairedDeviceList;
     ScanListAdapter mScanListAdapter;
     ArrayList<ScanItem> scanList;
+    private ArrayList<BluetoothDevice> mLeDevices;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,6 +78,7 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         setContentView(R.layout.activity_scan);
         scanList = new ArrayList<>();
         buildScanListView();
+        mLeDevices = new ArrayList<>();
 
 
         mHandler = new Handler();
@@ -191,20 +193,20 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         scanLeDevice(false);
 //        mLeDeviceListAdapter.clear();
     }
-//
-////    @Override
-////    protected void onListItemClick(ListView l, View v, int position, long id) {
-////        final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
-////        if (device == null) return;
-////        final Intent intent = new Intent(this, StartActivity.class);
-////        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, device.getName());
-////        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, device.getAddress());
-////        if (mScanning) {
-////            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-////            mScanning = false;
-////        }
-////        startActivity(intent);
-////    }
+
+//    @Override
+//    protected void onListItemClick(ListView l, View v, int position, long id) {
+//        final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
+//        if (device == null) return;
+//        final Intent intent = new Intent(this, StartActivity.class);
+//        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, device.getName());
+//        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+//        if (mScanning) {
+//            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+//            mScanning = false;
+//        }
+//        startActivity(intent);
+//    }
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
@@ -303,25 +305,41 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
                     System.err.println("DeviceScanActivity ---------> device bound state:"+device.getBondState());
 
                     addDeviceToScanList(device.getName(), device);
-
-//                    mLeDeviceListAdapter.notifyDataSetChanged();
                 }
             });
 
     @Override
     public void onScanClick(int position) {
-
+        final BluetoothDevice device = mLeDevices.get(position);
+        if (device == null) return;
+        final Intent intent = new Intent(this, StartActivity.class);
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(ConstantManager.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        if (mScanning) {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            mScanning = false;
+        }
+        startActivity(intent);
     }
 
     @Override
     public void addDeviceToScanList(String item, BluetoothDevice device) {
-        System.err.println(device+"  addDeviceToScanList");
-        scanList.add(
-                new ScanItem(
-                        R.drawable.circle_16_blue,
-                        item,
-                        false));
-        pairedDeviceList.setAdapter(mScanListAdapter);
+        boolean canAdd = true;
+        for (int i = 0; i<scanList.size(); i++) {
+            if(scanList.get(i).getTitle().equals(item)){
+                canAdd = false;
+            }
+        }
+        if (canAdd) {
+            System.err.println(device+"  addDeviceToScanList");
+            mLeDevices.add(device);
+            scanList.add(
+                    new ScanItem(
+                            R.drawable.circle_16_blue,
+                            item,
+                            false));
+            pairedDeviceList.setAdapter(mScanListAdapter);
+        }
     }
 
     @Override
