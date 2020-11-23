@@ -23,7 +23,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.View.OnTouchListener
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.SeekBar
@@ -54,6 +53,7 @@ import javax.inject.Inject
  * Copyright (c) 2017 skydoves rights reserved.
  */
 
+@Suppress("DEPRECATION")
 class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
   @Inject
@@ -96,11 +96,11 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
     val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
     val scale = resources.displayMetrics.density
-    val limit_CH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
-    val limit_CH2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
+    val limitCH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
+    val limitCh2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
 
 
-    close_btn.setOnTouchListener(OnTouchListener { v, event ->
+    close_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
         main?.bleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
@@ -108,8 +108,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
       }
       false
-    })
-    open_btn.setOnTouchListener(OnTouchListener { v, event ->
+    }
+    open_btn.setOnTouchListener { _, event ->
       if (event.action == MotionEvent.ACTION_DOWN) {
         main?.bleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
@@ -117,7 +117,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
       }
       false
-    })
+    }
     shutdown_current_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         shutdownCurrentTv.text = seekBar.progress.toString()
@@ -176,7 +176,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
-        objectAnimator = ObjectAnimator.ofFloat(limit_CH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator?.duration = 200
         objectAnimator?.start()
       }
@@ -189,7 +189,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
-        objectAnimator2 = ObjectAnimator.ofFloat(limit_CH2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
+        objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
         objectAnimator2?.duration = 200
         objectAnimator2?.start()
       }
@@ -249,28 +249,26 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   }
   private fun addEntry(sens1: Int, sens2: Int) {
     val data: LineData = chart_mainchart?.data!!
-    if (data != null) {
-      var set = data.getDataSetByIndex(0)
-      var set2 = data.getDataSetByIndex(1)
-      if (set == null) {
-        set = createSet()
-        set2 = createSet2()
-        data.addDataSet(set)
-        data.addDataSet(set2)
-      }
-
-      data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
-      data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
-      data.notifyDataChanged()
-      chart_mainchart.notifyDataSetChanged()
-      chart_mainchart.setVisibleXRangeMaximum(50f)
-      chart_mainchart.moveViewToX(set.entryCount - 50.toFloat()) //data.getEntryCount()
+    var set = data.getDataSetByIndex(0)
+    var set2 = data.getDataSetByIndex(1)
+    if (set == null) {
+      set = createSet()
+      set2 = createSet2()
+      data.addDataSet(set)
+      data.addDataSet(set2)
     }
+
+    data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
+    data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
+    data.notifyDataChanged()
+    chart_mainchart.notifyDataSetChanged()
+    chart_mainchart.setVisibleXRangeMaximum(50f)
+    chart_mainchart.moveViewToX(set.entryCount - 50.toFloat()) //data.getEntryCount()
   }
   private fun initializedSensorGraph() {
     chart_mainchart.contentDescription
     chart_mainchart.setTouchEnabled(false)
-    chart_mainchart.setDragEnabled(false)
+    chart_mainchart.isDragEnabled = false
     chart_mainchart.isDragDecelerationEnabled = false
     chart_mainchart.setScaleEnabled(false)
     chart_mainchart.setDrawGridBackground(false)
@@ -308,7 +306,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private fun startGraphEnteringDataThread() {
     graphThread = Thread {
       while (graphThreadFlag) {
-        main?.runOnUiThread(Runnable {
+        main?.runOnUiThread {
           if (plotData) {
             addEntry(10,255)
             addEntry(115,150)
@@ -325,7 +323,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
             plotData = false
           }
           addEntry(main?.getDataSens1()!!, main?.getDataSens2()!!)
-        })
+        }
         try {
           Thread.sleep(ConstantManager.GRAPH_UPDATE_DELAY.toLong())
         } catch (ignored: Exception) {

@@ -176,12 +176,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE)
 
 
-    nAdapter = NfcAdapter.getDefaultAdapter(this)
-    getNFCData(intent)
-
-    // auto weather alarm
-    weatherAlarm()
-
     // set boot receiver
 //    val receiver = ComponentName(this, AlarmBootReceiver::class.java)
 //    val pm = packageManager
@@ -199,23 +193,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     mSectionsPagerAdapter = SectionsPagerAdapter(supportFragmentManager)
     mainactivity_viewpager.adapter = mSectionsPagerAdapter
     mainactivity_viewpager.offscreenPageLimit = 5
-  }
-
-
-  private fun getNFCData(intent: Intent) {
-    if (NfcAdapter.ACTION_NDEF_DISCOVERED == getIntent().action) {
-      val rawMsgs = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-      if (rawMsgs != null) {
-        val messages = arrayOfNulls<NdefMessage>(rawMsgs.size)
-
-        for (i in rawMsgs.indices)
-          messages[i] = rawMsgs[i] as NdefMessage
-        val payload = messages[0]!!.records[0].payload
-
-        presenter.addRecord(String(payload))
-        mSectionsPagerAdapter.notifyDataSetChanged()
-      }
-    }
   }
 
   override fun onResume() {
@@ -251,13 +228,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
   override fun onNewIntent(intent: Intent) {
     super.onNewIntent(intent)
     setIntent(intent)
-    getNFCData(getIntent())
-  }
-
-  private fun weatherAlarm() {
-    if (!presenter.weatherAlarm) {
-      presenter.weatherAlarm = true
-    }
   }
 
 
@@ -348,7 +318,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
                       mCharacteristic, true)
             }
           }
-
         }
       }
     }
@@ -370,38 +339,6 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     subscribeThread?.start()
   }
 
-//  private fun startChangeStateThread() {
-//    moveThread = Thread {
-//      while (true) {
-//        runOnUiThread(Runnable {
-//          when (state) {
-//            0 -> {
-//              bleCommand(byteArrayOf(0x01, 0x00), OPEN_MOTOR_HDLE, WRITE)
-//              System.err.println("startChangeStateThread отправка команды на открытие")
-//            }
-//            1 -> {
-//              bleCommand(byteArrayOf(0x00, 0x00), OPEN_MOTOR_HDLE, WRITE)
-//              System.err.println("startChangeStateThread отправка команды на остановку")
-//            }
-//            2 -> {
-//              bleCommand(byteArrayOf(0x01, 0x00), CLOSE_MOTOR_HDLE, WRITE)
-//              System.err.println("startChangeStateThread отправка команды на закрытие")
-//            }
-//            3 -> {
-//              bleCommand(byteArrayOf(0x00, 0x00), CLOSE_MOTOR_HDLE, WRITE)
-//              System.err.println("startChangeStateThread отправка команды на остановку")
-//            }
-//          }
-//
-//        })
-//        try {
-//          Thread.sleep(10)
-//        } catch (ignored: Exception) {
-//        }
-//      }
-//    }
-//    moveThread?.start()
-//  }
 
   private fun makeGattUpdateIntentFilter(): IntentFilter? {
     val intentFilter = IntentFilter()
@@ -412,13 +349,7 @@ class MainActivity : BaseActivity<MainPresenter, MainActivityView>(), MainActivi
     return intentFilter
   }
 
-  fun getDataSens1(): Int {
-    return dataSens1
-  }
-  fun getDataSens2(): Int {
-    return dataSens2
-  }
-  fun setSensorsDataThreadFlag (value: Boolean){
-    sensorsDataThreadFlag = value
-  }
+  fun getDataSens1(): Int { return dataSens1 }
+  fun getDataSens2(): Int { return dataSens2 }
+  fun setSensorsDataThreadFlag (value: Boolean){ sensorsDataThreadFlag = value }
 }

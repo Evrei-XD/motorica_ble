@@ -32,7 +32,9 @@ import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,8 +49,10 @@ import com.skydoves.waterdays.R;
 import com.skydoves.waterdays.ble.ConstantManager;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
+
+import butterknife.BindView;
+
 
 //import com.example.android.motorica.R;
 
@@ -70,6 +74,8 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
     ScanListAdapter mScanListAdapter;
     ArrayList<ScanItem> scanList;
     private ArrayList<BluetoothDevice> mLeDevices;
+    ProgressBar progress;
+    Button scanButton;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -79,7 +85,8 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
         scanList = new ArrayList<>();
         buildScanListView();
         mLeDevices = new ArrayList<>();
-
+        progress = findViewById(R.id.activity_scan_progress);
+        scanButton = findViewById(R.id.activity_scan_button);
 
         mHandler = new Handler();
         // Checks if Bluetooth is supported on the device.
@@ -96,7 +103,14 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
             finish();
         }
 
+        scanButton.setOnClickListener(v -> {
+            scanList.clear();
+            mLeDevices.clear();
+            pairedDeviceList.setAdapter(mScanListAdapter);
+            scanLeDevice(true);
+        });
     }
+
 
     public void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(this,
@@ -210,19 +224,27 @@ public class DeviceScanActivity extends AppCompatActivity implements ScanView, S
 
     private void scanLeDevice(final boolean enable) {
         if (enable) {
+            //TODO работаем тут
             // Stops scanning after a pre-defined scan period.
             mHandler.postDelayed(() -> {
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
                 invalidateOptionsMenu();
+                progress.setVisibility(View.GONE);
+                scanButton.setEnabled(true);
+                scanButton.setText("SCAN AGAIN");
             }, SCAN_PERIOD);
-
             mScanning = true;
             mBluetoothAdapter.startLeScan(mLeScanCallback);
+            scanButton.setEnabled(false);
+            scanButton.setText("SCANNING");
         } else {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            scanButton.setEnabled(true);
+            scanButton.setText("SCAN AGAIN");
         }
+        progress.setVisibility(enable?View.VISIBLE:View.GONE);
         invalidateOptionsMenu();
     }
 
