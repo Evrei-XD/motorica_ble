@@ -51,7 +51,7 @@ import com.skydoves.waterdays.ble.ConstantManager;
 import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 
-import butterknife.BindView;
+//import butterknife.BindView;
 
 
 //import com.example.android.motorica.R;

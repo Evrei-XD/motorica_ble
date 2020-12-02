@@ -96,8 +96,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
     val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
     val scale = resources.displayMetrics.density
-    val limitCH1 = rootView!!.findViewById(R.id.limit_CH1) as LinearLayout
-    val limitCh2 = rootView!!.findViewById(R.id.limit_CH2) as LinearLayout
 
 
     close_btn.setOnTouchListener { _, event ->
@@ -138,16 +136,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
         main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_STEP_HDLE, WRITE)
       }
     })
-    start_up_time_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        startUpTimeTv.text = seekBar.progress.toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), START_UP_TIME_HDLE, WRITE)
-      }
-    })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
         deadZoneTv.text = (seekBar.progress + 30).toString()
@@ -156,42 +144,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
         main?.bleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
-      }
-    })
-    sensitivity_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        sensitivityTv.text = (seekBar.progress + 1).toString()
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf((seekBar.progress + 1).toByte()), SENSITIVITY_HDLE, WRITE)
-      }
-    })
-    open_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH1" + seekBar.progress)
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), OPEN_THRESHOLD_HDLE, WRITE)
-        objectAnimator = ObjectAnimator.ofFloat(limitCH1, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator?.duration = 200
-        objectAnimator?.start()
-      }
-    })
-    close_CH_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-      override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        System.err.println("CH2" + seekBar.progress)
-      }
-
-      override fun onStartTrackingTouch(seekBar: SeekBar) {}
-      override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf(seekBar.progress.toByte()), CLOSE_THRESHOLD_HDLE, WRITE)
-        objectAnimator2 = ObjectAnimator.ofFloat(limitCh2, "y", 300 * scale + 10f - (seekBar.progress * scale * 1.04f))
-        objectAnimator2?.duration = 200
-        objectAnimator2?.start()
       }
     })
     brake_motor_sb.setOnClickListener {
