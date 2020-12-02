@@ -65,8 +65,6 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   private var graphThread: Thread? = null
   private var graphThreadFlag = false
   private var plotData = true
-  var objectAnimator: ObjectAnimator? = null
-  var objectAnimator2: ObjectAnimator? = null
 
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -91,11 +89,8 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
 
     val shutdownCurrentTv = rootView!!.findViewById(R.id.shutdown_current_tv) as TextView
     val startUpStepTv = rootView!!.findViewById(R.id.start_up_step_tv) as TextView
-    val startUpTimeTv = rootView!!.findViewById(R.id.start_up_time_tv) as TextView
     val deadZoneTv = rootView!!.findViewById(R.id.dead_zone_tv) as TextView
-    val sensitivityTv = rootView!!.findViewById(R.id.sensitivity_tv) as TextView
     val brakeMotorTv = rootView!!.findViewById(R.id.brake_motor_tv) as TextView
-    val scale = resources.displayMetrics.density
 
 
     close_btn.setOnTouchListener { _, event ->
@@ -173,7 +168,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
   //////////////////////////////////////////////////////////////////////////////
   /**                          работа с графиками                            **/
   //////////////////////////////////////////////////////////////////////////////
-  private fun createSet(): LineDataSet? {
+  private fun createSet(): LineDataSet {
     val set = LineDataSet(null, null)
     set.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set.lineWidth = 2f
@@ -186,7 +181,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     set.valueTextColor = Color.TRANSPARENT
     return set
   }
-  private fun createSet2(): LineDataSet? {
+  private fun createSet2(): LineDataSet {
     val set2 = LineDataSet(null, null)
     set2.axisDependency = YAxis.AxisDependency.LEFT //.AxisDependency.LEFT
     set2.lineWidth = 2f
@@ -210,7 +205,7 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
       data.addDataSet(set2)
     }
 
-    data.addEntry(Entry(set!!.entryCount.toFloat(), sens1.toFloat()), 0)
+    data.addEntry(Entry(set.entryCount.toFloat(), sens1.toFloat()), 0)
     data.addEntry(Entry(set2!!.entryCount.toFloat(), sens2.toFloat()), 1)
     data.notifyDataChanged()
     chart_mainchart.notifyDataSetChanged()
