@@ -32,24 +32,22 @@ android {
 }
 
 dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
 
     // kotlin
-    //noinspection GradleDependency
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlinVersion"
-    //noinspection GradleDependency
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.30-M1"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.4.30-M1"
     implementation "org.jetbrains.anko:anko:$ankoVersion"
 
     // network
     implementation 'com.squareup.okhttp:okhttp:2.7.5'
 
     // dagger
-    //noinspection GradleDependency
-    implementation "com.google.dagger:dagger:$daggerVersion"
-    kapt "com.google.dagger:dagger-compiler:$daggerVersion"
-    kapt "com.google.dagger:dagger-android-processor:$daggerVersion"
+    implementation "com.google.dagger:dagger:2.30.1"
+    kapt "com.google.dagger:dagger-compiler:2.30.1"
+    kapt "com.google.dagger:dagger-android-processor:2.30.1"
 
     // rxJava
     implementation 'io.reactivex.rxjava2:rxjava:2.2.17'
@@ -71,17 +69,36 @@ dependencies {
 
     // butter knife
     implementation 'com.jakewharton:butterknife:10.2.3'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.3'
+    kapt 'com.jakewharton:butterknife-compiler:10.2.3'
 
     // BLE connection
     implementation "com.android.support:cardview-v7:29.0.0"
-    implementation "com.polidea.rxandroidble2:rxandroidble:1.11.1"
+    implementation 'com.polidea.rxandroidble2:rxandroidble:1.11.1'
 
     // multi dex
     implementation 'androidx.multidex:multidex:2.0.1'
 
     // debug
     implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0-alpha'
+    //noinspection GradleCompatible
+    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'com.android.support:design:29.0.0'
+    implementation 'com.android.support:mediarouter-v7:29.0.0'
+    implementation 'com.android.support:recyclerview-v7:29.0.0'
+    implementation 'com.android.support:cardview-v7:29.0.0'
+    implementation 'com.android.support:support-v13:29.0.0'
+    implementation 'com.android.support:support-v4:29.0.0'
+    implementation 'com.google.code.gson:gson:2.8.6'
+
+    // dexter (permissions)
+    implementation 'com.karumi:dexter:6.2.2'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+
+    //animation
+    implementation 'com.airbnb.android:lottie:3.5.0'
 }
 
 apply from: '../spotless.gradle'
