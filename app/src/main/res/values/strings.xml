@@ -14,11 +14,6 @@
     <string name="msg_invalid_input">пожалуйста, введите допустимое значение.</string>
     <string name="msg_press_long">чашку на 2 секунды или нажмите на соответствующую емкость капельной банки.</string>
     <string name="msg_edited_capacity">модифицированный прием.</string>
-    <string name="bolus">реализовать меню выбора количесва болюса</string>
-    <string name="basal">реализовать меню настройки базала</string>
-    <string name="diary">реализовать меню дневника</string>
-    <string name="search">реализовать меню поиска</string>
-    <string name="play_stop">реализовать переключение помпы</string>
 
     <string name="activity_scan_paired_text">Connected devices:</string>
     <string name="activity_scan_button">Scan again</string>

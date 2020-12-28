@@ -150,12 +150,12 @@ class ChartFragment : Fragment(), OnChartValueSelectedListener {
     })
     dead_zone_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
       override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-        deadZoneTv.text = (seekBar.progress + 30).toString()
+        deadZoneTv.text = (seekBar.progress).toString()
       }
 
       override fun onStartTrackingTouch(seekBar: SeekBar) {}
       override fun onStopTrackingTouch(seekBar: SeekBar) {
-        main?.bleCommand(byteArrayOf((seekBar.progress + 30).toByte()), DEAD_ZONE_HDLE, WRITE)
+        main?.bleCommand(byteArrayOf((seekBar.progress).toByte()), DEAD_ZONE_HDLE, WRITE)
       }
     })
     sensitivity_sb.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {

@@ -35,6 +35,7 @@ public class SampleGattAttributes {
     public static String BRAKE_MOTOR_TIME_HDLE = "0000fe4b-8e22-4541-9d4c-21edae82ed19";
     public static String BRAKE_MOTOR_HDLE = "0000fe4c-8e22-4541-9d4c-21edae82ed19";
     public static String SENS_OPTIONS = "0000fe4d-8e22-4541-9d4c-21edae82ed19";
+
     public static String CLIENT_CHARACTERISTIC_CONFIG = "00002902-0000-1000-8000-00805f9b34fb";
     public static String MY_TEST_MEASUREMENT = "00002a00-0000-1000-8000-00805f9b34fb";
     // Sample Commands.

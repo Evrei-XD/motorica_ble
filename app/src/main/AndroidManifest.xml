@@ -27,7 +27,6 @@
         <activity android:name=".ui.activities.intro.DeviceScanActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -36,15 +35,10 @@
             android:name=".ui.activities.main.MainActivity">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
-
                 <category android:name="android.intent.category.DEFAULT" />
-
                 <data android:mimeType="waterdays_nfc/*" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".ui.activities.settings.SettingActivity"
-            android:theme="@style/AppTheme.Setting" />
         <activity
             android:theme="@style/AppTheme.NoActionBar"
             android:name=".ui.activities.intro.StartActivity" />
